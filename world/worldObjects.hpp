@@ -1,6 +1,8 @@
 #ifndef WORLD_OBJECTS
 #define WORLD_OBJECTS
 
+#include "vectors.hpp"
+
 /**
  * @brief Represents a point in the world
  * 
@@ -181,10 +183,41 @@ class Face {
 
 };
 
-
+/**
+ * @brief Holds a material read in from a .mtl file 
+ * 
+ */
 class Material{
     public:
-        int ambientComponent;
+        /**
+         * @brief Ambient lighting color of the material -- Ka field of a .mtl file
+         * 
+         */
+        Color ambientComponent;
+        /**
+         * @brief Diffuse lighting color of the material -- Kd field of a .mtl file
+         * 
+         */
+        Color diffuseComponent;
+        /**
+         * @brief Specular lighting color of the material -- Ks field of a .mtl file
+         * 
+         */
+        Color specularComponent;
+        /**
+         * @brief The shininess of the material -- Ns field in a .mtl file
+         */
+        double shininess;
+        /**
+         * @brief Construct a new Material object with the given values
+         * 
+         * @param ac The ambient lighting color of this Material
+         * @param dc The diffuse lighting color of this Material
+         * @param dc The specular lighting color of this Material
+         * @param s The shininess value of this material
+         */
+        Material(Color ac, Color dc, Color sc, double s): ambientComponent(ac), diffuseComponent(dc), specularComponent(sc), shininess(s){}
+    
 };
 
 #endif

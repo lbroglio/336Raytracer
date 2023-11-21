@@ -1,3 +1,2 @@
-
 clean:
 	rm bin/*

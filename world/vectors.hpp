@@ -74,6 +74,17 @@ class Color{
          * 
          */
         Color(){}
+        /**
+         * @brief Equals operator override. -- Sets all of the fields of this color to those of the given color
+         * 
+         * @return A reference to the new color
+         */
+        Color& operator=(Color&& c);
+        /**
+         * @brief Constuctor used for creating a color from another 
+         *  
+         */
+        Color(const Color& c): backingVector(Vector3(c.r, c.g, c.b)){}
     private:
         /**
          * @brief Vector 3 object used to back this color
