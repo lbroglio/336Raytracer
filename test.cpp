@@ -1,10 +1,12 @@
 #include<iostream>
 #include<stdexcept>
 
-#include"world-objects/worldObjects.hpp"
+#include"world/worldObjects.hpp"
+#include"world/vectors.hpp"
 
 
 void testFaceTriangleDetection(){
+     std::cout << "Face Construtor Tests:\n" << std::endl; 
 
     // Test creating a valid right triangle 
     int caughtFlag = 1;
@@ -16,12 +18,12 @@ void testFaceTriangleDetection(){
         Face(a1, a2, a3);
     }
     catch(const std::invalid_argument& e){
-        std::cout << "Test 1: Failed\n" << std::endl; 
+        std::cout << "\tTest 1: Failed\n" << std::endl; 
         caughtFlag = 0;
     }
 
     if(caughtFlag == 1){
-        std::cout << "Test 1: Passed\n" << std::endl; 
+        std::cout << "\tTest 1: Passed\n" << std::endl; 
     }
 
     // Test creating a valid triangle 
@@ -34,12 +36,12 @@ void testFaceTriangleDetection(){
         Face(b1, b2, b3);
     }
     catch(const std::invalid_argument& e){
-        std::cout << "Test 2: Failed\n" << std::endl; 
+        std::cout << "\tTest 2: Failed\n" << std::endl; 
         caughtFlag = 0;
     }
 
     if(caughtFlag == 1){
-        std::cout << "Test 2: Passed\n" << std::endl; 
+        std::cout << "\tTest 2: Passed\n" << std::endl; 
     }
 
     // Test creating an invlaid triangle because the points don't share a plane
@@ -52,12 +54,12 @@ void testFaceTriangleDetection(){
         Face(c1, c2, c3);
     }
     catch(const std::invalid_argument& e){
-        std::cout << "Test 3: Passed\n" << std::endl; 
+        std::cout << "\tTest 3: Passed\n" << std::endl; 
         caughtFlag = 0;
     }
 
     if(caughtFlag == 1){
-        std::cout << "Test 3: Failed\n" << std::endl; 
+        std::cout << "\tTest 3: Failed\n" << std::endl; 
     }
 
 
@@ -71,18 +73,17 @@ void testFaceTriangleDetection(){
         Face(d1, d2, d3);
     }
     catch(const std::invalid_argument& e){
-        std::cout << "Test 4: Passed\n" << std::endl; 
+        std::cout << "\tTest 4: Passed\n" << std::endl; 
         caughtFlag = 0;
     }
 
     if(caughtFlag == 1){
-        std::cout << "Test 4: Failed\n" << std::endl; 
+        std::cout << "\tTest 4: Failed\n" << std::endl; 
     }
 
 
 
 }
-
 
 int main(int argc, char* argv[]){
     testFaceTriangleDetection();

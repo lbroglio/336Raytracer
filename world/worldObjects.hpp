@@ -1,3 +1,5 @@
+#ifndef WORLD_OBJECTS
+#define WORLD_OBJECTS
 
 /**
  * @brief Represents a point in the world
@@ -178,3 +180,11 @@ class Face {
 
 
 };
+
+
+class Material{
+    public:
+        int ambientComponent;
+};
+
+#endif

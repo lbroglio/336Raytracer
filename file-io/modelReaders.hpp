@@ -1,5 +1,12 @@
+#ifndef MODEL_READERS
+#define MODEL_READERS
+
+
 #include<string>
 #include<vector>
+#include<map>
+
+#include "../world/worldObjects.hpp"
 
 
 /**
@@ -13,13 +20,20 @@ class ObjReader {
          * 
          * @param path The path to the file to read in as a c++ string object
          */
-        ObjReader(std::string path);
+        ObjReader(std::string path): targetPath(path){}
         /**
          * @brief Construct a new Obj Reader object
          * 
          * @param path The path to the file to read in as a c style char* 
          */
-        ObjReader(char* path);
+        ObjReader(char* path): targetPath(std::string(path)){}
+        /**
+         * @brief Read in the obj file this ObjReader is pointing to and return its contents as a vector of Face objects
+         * 
+         * @return A vector of face objects read in from the .obj file
+         */
+        std::vector<Face> readInFile();
+        std::vector<Face> readInFile(std::map<std::string, Material> materials);
 
     private:
         /**
@@ -27,3 +41,5 @@ class ObjReader {
          */
         std::string targetPath;
 };
+
+#endif

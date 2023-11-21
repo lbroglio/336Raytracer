@@ -1,5 +1,5 @@
-test: test.cpp world-objects/worldObjects.hpp world-objects/worldObjects.cpp
-	g++ -Wall -Werror -ggdb test.cpp world-objects/worldObjects.cpp -o bin/test
+test: test.cpp world/worldObjects.hpp world/worldObjects.cpp
+	g++ -Wall -Werror -ggdb test.cpp world/worldObjects.cpp -o bin/test
 
 clean:
 	rm bin/*
