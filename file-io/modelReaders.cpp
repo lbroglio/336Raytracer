@@ -62,7 +62,8 @@ int countChar(std::string countFrom, char toCount){
 }
 
 /**
- * @brief Split a string into an array of subs strings divided by the whitespace (' ' chars from the string)
+ * @brief Split a string into an array of subs strings divided by a given character -- The instances of the given character
+ * will not be included in the substrings -- 
  * Allocates memory for the the array
  * 
  * @param toSplit The string to split up by whitespace
@@ -70,9 +71,9 @@ int countChar(std::string countFrom, char toCount){
  * @return An allocated array of sub strings
  * 
  */
-std::string* splitString(std::string toSplit){
+std::string* splitString(std::string toSplit, char splitAt){
     // Find number of spaces in the string
-    int numSpaces = countChar(toSplit, ' ');
+    int numSpaces = countChar(toSplit, splitAt);
 
     // Create the array to store the split string
     std::string* splitString = new std::string[numSpaces + 1];
@@ -88,7 +89,7 @@ std::string* splitString(std::string toSplit){
         char currChar = toSplit[i];
 
         // If the current character is a space save the current substring and reset to read in another substring
-        if(currChar == ' '){
+        if(currChar == splitAt){
             splitString[indexTracker] = subStr;
             subStr = "";
             indexTracker++;
@@ -125,10 +126,7 @@ std::map<std::string, Material> MtlReader::readInFile(){
         std::string line = readLine(&mtlFile);
 
         // Split the line up by spaces
-        std::string* splitStr = splitString(line);
-
-       
-        
+        std::string* splitStr = splitString(line, ' ');
 
         // Decide how to parse the line based on the first substring
         // Parse as an ambient lighting component
@@ -201,6 +199,8 @@ std::map<std::string, Material> MtlReader::readInFile(){
             mtlName = splitStr[1];
         }
 
+        // Free the memory from the list of strings
+        delete[] splitStr;
     }
 
     // Save the last read in material
@@ -210,3 +210,155 @@ std::map<std::string, Material> MtlReader::readInFile(){
     // Return the mapping of materials
     return matMap;
 }
+
+
+ std::vector<Face> ObjReader::readInFile(std::map<std::string, Material> materials){
+    // Open the target file for reading 
+    std::ifstream mtlFile(targetPath);
+
+    //Vector to store the read in faces
+    std::vector<Face> faces; 
+
+    // Vectors to hold lists of the points read in from the .obj file 
+    std::vector<Vertex> vList;
+    std::vector<VertexTexture> vtList;
+    std::vector<VertexNormal> vnList;
+    
+    // Hold the current material to be applied to a created face
+    Material currMat;
+
+    // Read lines from the file until the end
+    while(mtlFile.peek() != EOF){
+        // Read the next line from the file
+        std::string line = readLine(&mtlFile);
+
+        // Split the line up by spaces
+        std::string* splitStr = splitString(line, ' ');
+
+        // Decide how to parse the line based on the first substring
+        // Parse as an indicator for a new object
+        if(splitStr[0] == "o"){
+            // Reset the vertex arrays to be empty 
+            vList = std::vector<Vertex>();
+            vtList = std::vector<VertexTexture>();
+            vnList = std::vector<VertexNormal>();
+
+            // Reset the material to be the default material
+            currMat = Material();
+
+        }
+        // Parse as a vertex (v field)
+        else if(splitStr[0] == "v"){
+            // Read the three components of the vertex from the line
+            double xComp = atof(splitStr[1].c_str());
+            double yComp = atof(splitStr[2].c_str());
+            double zComp = atof(splitStr[3].c_str());
+
+            // Create a Vertex object and save it
+            Vertex readIn(xComp, yComp, zComp);
+            vList.push_back(readIn);
+        }
+        // Parse as a texture vertex (vt field)
+        else if(splitStr[0] == "vt"){
+            // Read the two components of the texture vertex from the line
+            double uComp = atof(splitStr[1].c_str());
+            double vComp = atof(splitStr[2].c_str());
+
+            // Create a VertexTexture object and save it
+            VertexTexture readIn(uComp, vComp);
+            vtList.push_back(readIn);
+        }
+        // Parse as a Vertex normal (vn field)
+        else if(splitStr[0] == "vn"){
+            // Read the three components of the vertex normal from the line
+            double iComp = atof(splitStr[1].c_str());
+            double jComp = atof(splitStr[2].c_str());
+            double kComp = atof(splitStr[3].c_str());
+
+            // Create a VertexNormal object and save it
+            VertexNormal readIn(iComp, jComp, kComp);
+            vnList.push_back(readIn);
+        }
+        // Parse as an indicator to swtich the material being used
+        else if(splitStr[0] == "usemtl"){
+            // Read the name of the new material
+            std::string matName = splitStr[1];
+
+            // Check if the material name is in the provided map
+            if(materials.count(matName)){
+                currMat = materials[matName];
+            }
+            // If the material is unknown switch to the default color
+            else{
+                currMat = Material();
+            }
+        }
+        // Parse as a Face (f field)
+        else if(splitStr[0] == "f"){
+            // Send an error to the console if the face isn't a triangle
+
+            // Check if the line has more than three entries (exlcuding the f indicator)
+            // This is done by first checking if the length is long enough to have the extra entries
+            if(countChar(line, ' ') + 1 > 4){
+                // If the line is long enough through an error if the extra entries are empty
+                // This is to prevent a failure being caused by extraneous spaces
+                for(int i= 4; i < countChar(line, ' ') + 1; i++){
+                    std::string currEntry = splitStr[1];
+
+                    int entryLen = currEntry.length();
+                    // If this entry is empty or only contains spaces
+                    if(currEntry != "" && entryLen  != countChar(currEntry, ' ')){
+                        std::cerr << "Error: " << targetPath << "must only contain triangular faces." << std::endl;
+                        exit(1);
+                    }
+                }
+            }
+
+                // Read for every entry in the vertexes of the triangle
+
+                // List to store the three created vertices
+                ObjVertex faceEls[3];
+                
+                //For every entry
+                for(int i =0; i<3; i++){
+                   
+                    std::string entry = splitStr[i];
+                    // Check if the entry has a texture and normal vertex or if it just a vertex
+                    // by checking if the entry nas / characters
+                    if(countChar(entry, '/')){
+                        // If the entry has associated texure/normal vertexes use all three to construct an ObjVertex
+                        std::string* splitEntry = splitString(entry, '/');
+
+                        int vIndex = atoi(splitEntry[0].c_str());
+                        int vtIndex = atoi(splitEntry[1].c_str());
+                        int vnIndex = atoi(splitEntry[2].c_str());
+
+
+                        faceEls[i] = ObjVertex(vList[vIndex - 1], vtList[vtIndex - 1], vnList[vnIndex - 1]);
+
+                        // Free used memory
+                        delete[] splitEntry;
+                    }
+                    else{
+                        // If the entry has just a standard vertex construct an ObjVertex using it and zeroes for all other elements
+                        int vIndex = atoi(entry.c_str());
+
+                        faceEls[i] = ObjVertex(vList[vIndex - 1], VertexTexture(0, 0), VertexNormal(0, 0, 0));
+                    }
+                }
+                // Create a face and add it to the list of faces
+                faces.push_back(Face(faceEls[0], faceEls[1], faceEls[2]));
+
+            }
+
+        // Free used memory
+        delete[] splitStr;
+    }
+    // Return list of faces
+    return faces;
+ }
+
+
+ std::vector<Face> ObjReader::readInFile(){
+    return this->readInFile(std::map<std::string, Material>());
+ }

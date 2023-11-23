@@ -75,11 +75,17 @@ class Color{
          */
         Color(){}
         /**
-         * @brief Equals operator override. -- Sets all of the fields of this color to those of the given color
+         * @brief Equals operator override for setting to a color reference reference. -- Sets all of the fields of this color to those of the given color
          * 
-         * @return A reference to the new color
+         * @return A reference to the color after it is set
          */
         Color& operator=(Color&& c);
+        /**
+         * @brief Equals operator override for setting to a color reference. -- Sets all of the fields of this color to those of the given color
+         * 
+         * @return A reference to the color after it is set
+         */
+        Color& operator=(const Color& c);
         /**
          * @brief Constuctor used for creating a color from another 
          *  

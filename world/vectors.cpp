@@ -7,3 +7,11 @@ Color& Color::operator=(Color&& c){
 
     return *this;
 }
+
+Color& Color::operator=(const Color& c){
+    r = c.r;
+    g = c.g;
+    b = c.b;
+
+    return *this;
+}

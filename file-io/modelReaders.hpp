@@ -33,6 +33,13 @@ class ObjReader {
          * @return A vector of face objects read in from the .obj file
          */
         std::vector<Face> readInFile();
+        /**
+         * @brief Read in the obj file this ObjReader is pointing to and return its contents as a vector of Face objects
+         * 
+         * @param materials Map containing the materials to use for the faces
+         * 
+         * @return A vector of face objects read in from the .obj file
+         */
         std::vector<Face> readInFile(std::map<std::string, Material> materials);
 
     private:

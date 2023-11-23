@@ -1,6 +1,8 @@
 #ifndef WORLD_OBJECTS
 #define WORLD_OBJECTS
 
+#include<iostream>
+
 #include "vectors.hpp"
 
 /**
@@ -16,7 +18,7 @@ class Vertex {
          * @param y The y position of the created vertex
          * @param z The z position of the created vertex
          */
-        Vertex(int x, int y, int z): x(x), y(y), z(z){}
+        Vertex(double x, double y, double z): x(x), y(y), z(z){}
         /**
          * @brief Construct a new Vertex object
          * Default constructor sets all elements to zero
@@ -25,15 +27,23 @@ class Vertex {
         /**
          * @brief x postion of this Vertex
          */
-        int x;
+        double x;
         /**
          * @brief y postion of this Vertex
          */
-        int y;
+        double y;
         /**
          * @brief z postion of this Vertex
          */
-        int z;
+        double z;
+    /**
+     * @brief Create a string representation of a Vertex and pass it into an output stream
+     * 
+     * @param o output stream to print to
+     * @param v Vertex to print a string representation of
+     * @return The output string after the Vertex's representation is printed
+     */
+    friend std::ostream& operator<<(std::ostream& o, const Vertex& v);
 
 };
 
@@ -51,7 +61,7 @@ class VertexNormal{
          * @param j The y position of the created vertex
          * @param k The z position of the created vertex
          */
-        VertexNormal(int i, int j, int k): i(i), j(j), k(k){}
+        VertexNormal(double i, double j, double k): i(i), j(j), k(k){}
         /**
          * @brief Construct a new VertexNormal object
          * Default constructor sets all elements to zero
@@ -60,15 +70,15 @@ class VertexNormal{
         /**
          * @brief i postion of this Vertex
          */
-        int i;
+        double i;
         /**
          * @brief j postion of this Vertex
          */
-        int j;
+        double j;
         /**
          * @brief k postion of this Vertex
          */
-        int k;
+        double k;
 };
 
 /**
@@ -83,7 +93,7 @@ class VertexTexture{
          * @param u u component read in from a .obj file
          * @param v v component read in from a .obj file
          */
-        VertexTexture(int u, int v): u(u), v(v){}
+        VertexTexture(double u, double v): u(u), v(v){}
         /**
          * @brief Construct a new VertexTexture object
          * Default constructor sets all elements to zero
@@ -93,12 +103,12 @@ class VertexTexture{
          * @brief u component of this Vertex
          * 
          */
-        int u;
+        double u;
         /**
          * @brief v component of this Vertex
          * 
          */
-        int v;
+        double v;
 };
 
 
@@ -130,7 +140,7 @@ class ObjVertex {
          * @param j The j component of the VertextNormal element of this ObjVertex
          * @param k The k component of the VertextNormal element of this ObjVertex
          */
-        ObjVertex(int x, int y, int z, int u, int v, int i, int j, int k);
+        ObjVertex(double x, double y, double z, double u, double v, double i, double j, double k);
         /**
          * @brief Default constructor for an ObjVertex sets all components to zero for all elements
          */
@@ -180,6 +190,15 @@ class Face {
          */
         ObjVertex v3;
 
+    /**
+     * @brief Create a string representation of a Face and pass it into an output stream
+     * 
+     * @param o output stream to print to
+     * @param v Face to print a string representation of
+     * @return The output string after the Face's representation is printed
+     */
+    friend std::ostream& operator<<(std::ostream& o, const Face& f);
+
 
 };
 
@@ -217,7 +236,25 @@ class Material{
          * @param s The shininess value of this material
          */
         Material(Color ac, Color dc, Color sc, double s): ambientComponent(ac), diffuseComponent(dc), specularComponent(sc), shininess(s){}
-    
+        /**
+         * @brief Construct a new Material object -- Default constructor creates a material with the default fields for a .mtl file
+         * 
+         */
+        Material(): ambientComponent(Color(51, 51, 51)), diffuseComponent(Color(204, 204, 204)),  specularComponent(Color(255, 255, 255)), shininess(0){}
+        /**
+         * @brief Equals overinding allows a material to be set from another material
+         * 
+         * @return This Material after updating
+         */
+        Material operator=(const Material& m);
+    /**
+     * @brief Create a string representation of a Material and pass it into an output stream
+     * 
+     * @param o output stream to print to
+     * @param m Material to print a string representation of
+     * @return The output string after the Material's representation is printed
+     */
+    friend std::ostream& operator<<(std::ostream& o, const Material& m);
 };
 
 #endif
