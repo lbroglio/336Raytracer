@@ -238,11 +238,6 @@ std::map<std::string, Material> MtlReader::readInFile(){
         // Decide how to parse the line based on the first substring
         // Parse as an indicator for a new object
         if(splitStr[0] == "o"){
-            // Reset the vertex arrays to be empty 
-            vList = std::vector<Vertex>();
-            vtList = std::vector<VertexTexture>();
-            vnList = std::vector<VertexNormal>();
-
             // Reset the material to be the default material
             currMat = Material();
 
@@ -296,7 +291,6 @@ std::map<std::string, Material> MtlReader::readInFile(){
         // Parse as a Face (f field)
         else if(splitStr[0] == "f"){
             // Send an error to the console if the face isn't a triangle
-
             // Check if the line has more than three entries (exlcuding the f indicator)
             // This is done by first checking if the length is long enough to have the extra entries
             if(countChar(line, ' ') + 1 > 4){
@@ -320,9 +314,9 @@ std::map<std::string, Material> MtlReader::readInFile(){
                 ObjVertex faceEls[3];
                 
                 //For every entry
-                for(int i =0; i<3; i++){
-                   
-                    std::string entry = splitStr[i];
+                for(int i = 0; i < 3; i++){
+                    std::string entry = splitStr[i + 1];
+                    
                     // Check if the entry has a texture and normal vertex or if it just a vertex
                     // by checking if the entry nas / characters
                     if(countChar(entry, '/')){
@@ -332,10 +326,10 @@ std::map<std::string, Material> MtlReader::readInFile(){
                         int vIndex = atoi(splitEntry[0].c_str());
                         int vtIndex = atoi(splitEntry[1].c_str());
                         int vnIndex = atoi(splitEntry[2].c_str());
-
+                        
 
                         faceEls[i] = ObjVertex(vList[vIndex - 1], vtList[vtIndex - 1], vnList[vnIndex - 1]);
-
+                       
                         // Free used memory
                         delete[] splitEntry;
                     }
@@ -347,7 +341,7 @@ std::map<std::string, Material> MtlReader::readInFile(){
                     }
                 }
                 // Create a face and add it to the list of faces
-                faces.push_back(Face(faceEls[0], faceEls[1], faceEls[2]));
+                faces.push_back(Face(faceEls[0], faceEls[1], faceEls[2], currMat));
 
             }
 

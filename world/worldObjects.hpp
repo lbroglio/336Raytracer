@@ -5,6 +5,64 @@
 
 #include "vectors.hpp"
 
+
+
+/**
+ * @brief Holds a material read in from a .mtl file 
+ * 
+ */
+class Material{
+    public:
+        /**
+         * @brief Ambient lighting color of the material -- Ka field of a .mtl file
+         * 
+         */
+        Color ambientComponent;
+        /**
+         * @brief Diffuse lighting color of the material -- Kd field of a .mtl file
+         * 
+         */
+        Color diffuseComponent;
+        /**
+         * @brief Specular lighting color of the material -- Ks field of a .mtl file
+         * 
+         */
+        Color specularComponent;
+        /**
+         * @brief The shininess of the material -- Ns field in a .mtl file
+         */
+        double shininess;
+        /**
+         * @brief Construct a new Material object with the given values
+         * 
+         * @param ac The ambient lighting color of this Material
+         * @param dc The diffuse lighting color of this Material
+         * @param dc The specular lighting color of this Material
+         * @param s The shininess value of this material
+         */
+        Material(Color ac, Color dc, Color sc, double s): ambientComponent(ac), diffuseComponent(dc), specularComponent(sc), shininess(s){}
+        /**
+         * @brief Construct a new Material object -- Default constructor creates a material with the default fields for a .mtl file
+         * 
+         */
+        Material(): ambientComponent(Color(51, 51, 51)), diffuseComponent(Color(204, 204, 204)),  specularComponent(Color(255, 255, 255)), shininess(0){}
+        /**
+         * @brief Equals overinding allows a material to be set from another material
+         * 
+         * @return This Material after updating
+         */
+        Material operator=(const Material& m);
+    /**
+     * @brief Create a string representation of a Material and pass it into an output stream
+     * 
+     * @param o output stream to print to
+     * @param m Material to print a string representation of
+     * @return The output string after the Material's representation is printed
+     */
+    friend std::ostream& operator<<(std::ostream& o, const Material& m);
+};
+
+
 /**
  * @brief Represents a point in the world
  * 
@@ -174,6 +232,15 @@ class Face {
          * @param v3 One of the vertices defining this face
          */
         Face(ObjVertex v1, ObjVertex v2, ObjVertex v3);
+            /**
+         * @brief Construct a new Face object
+         * Must be a triangular
+         * @param v1 One of the vertices defining this face
+         * @param v2 One of the vertices defining this face
+         * @param v3 One of the vertices defining this face
+         * @param mat The material applied to this face
+         */
+        Face(ObjVertex v1, ObjVertex v2, ObjVertex v3, Material mat);
         /**
          * @brief A vertex defining this triangular face
          * 
@@ -189,6 +256,11 @@ class Face {
          * 
          */
         ObjVertex v3;
+        /**
+         * @brief The material applied to this face
+         * 
+         */
+        Material mat;
 
     /**
      * @brief Create a string representation of a Face and pass it into an output stream
@@ -202,59 +274,5 @@ class Face {
 
 };
 
-/**
- * @brief Holds a material read in from a .mtl file 
- * 
- */
-class Material{
-    public:
-        /**
-         * @brief Ambient lighting color of the material -- Ka field of a .mtl file
-         * 
-         */
-        Color ambientComponent;
-        /**
-         * @brief Diffuse lighting color of the material -- Kd field of a .mtl file
-         * 
-         */
-        Color diffuseComponent;
-        /**
-         * @brief Specular lighting color of the material -- Ks field of a .mtl file
-         * 
-         */
-        Color specularComponent;
-        /**
-         * @brief The shininess of the material -- Ns field in a .mtl file
-         */
-        double shininess;
-        /**
-         * @brief Construct a new Material object with the given values
-         * 
-         * @param ac The ambient lighting color of this Material
-         * @param dc The diffuse lighting color of this Material
-         * @param dc The specular lighting color of this Material
-         * @param s The shininess value of this material
-         */
-        Material(Color ac, Color dc, Color sc, double s): ambientComponent(ac), diffuseComponent(dc), specularComponent(sc), shininess(s){}
-        /**
-         * @brief Construct a new Material object -- Default constructor creates a material with the default fields for a .mtl file
-         * 
-         */
-        Material(): ambientComponent(Color(51, 51, 51)), diffuseComponent(Color(204, 204, 204)),  specularComponent(Color(255, 255, 255)), shininess(0){}
-        /**
-         * @brief Equals overinding allows a material to be set from another material
-         * 
-         * @return This Material after updating
-         */
-        Material operator=(const Material& m);
-    /**
-     * @brief Create a string representation of a Material and pass it into an output stream
-     * 
-     * @param o output stream to print to
-     * @param m Material to print a string representation of
-     * @return The output string after the Material's representation is printed
-     */
-    friend std::ostream& operator<<(std::ostream& o, const Material& m);
-};
 
 #endif

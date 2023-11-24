@@ -13,10 +13,10 @@ int main(int arg, char* argv[]){
 
     // Read in the .obj file specified by the first argument
     ObjReader oReader(argv[1]);
-    std::vector<Face> faces = oReader.readInFile();
+    std::vector<Face> faces = oReader.readInFile(mats);
 
     // Print face for checking
-    for(size_t i =0; i < 3; i++){
+    for(size_t i =0; i < faces.size(); i++){
         std::cout << faces[i] << '\n';
     }
     std::cout << std::endl;
