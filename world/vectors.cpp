@@ -20,8 +20,8 @@ Color& Color::operator=(const Color& c){
 
 Vector3 Vector3::operator+(const Vector3& v) const{
     double summedX = this->x + v.x;
-    double summedY = this->x + v.x;
-    double summedZ = this->x + v.x;
+    double summedY = this->y + v.y;
+    double summedZ = this->z + v.z;
 
     return Vector3(summedX, summedY, summedZ);
 }
@@ -33,8 +33,8 @@ Vector3 Vector3::operator+=(const Vector3& v){
 
 Vector3 Vector3::operator*(const double& s) const{
     double prodX = this->x * s;
-    double prodY = this->x * s;
-    double prodZ = this->x * s;
+    double prodY = this->y * s;
+    double prodZ = this->z * s;
 
     return Vector3(prodX, prodY, prodZ);
 }

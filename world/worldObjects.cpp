@@ -58,10 +58,21 @@ Face::Face(ObjVertex v1, ObjVertex v2, ObjVertex v3){
     //Calcuate the plane this face is on
     
     // Get Vectors representing two of the triangles sides
-    //Vector3 aVector = v2.v - v1.v;
-    //Vector3 bVector = v3.v - v1.v;
+    Vector3 aVector = v2.v - v1.v;
+    Vector3 bVector = v3.v - v1.v;
 
 
+    // Take the cross product of these two Vectors to get a normal line for the target plane
+    // This gives the a, b, and c values for the plane
+    Vector3 planeNormal = aVector * bVector;
+
+    // Calculate the k value for the plane -- formaula: k = -n dot s where n is the plane normal and s is a point
+    // on the plane. We will use a Vertex on the triangle for s
+    Vector3 negateN = -1 * planeNormal;
+    double k = (negateN.x * v1.v.x) + (negateN.y * v1.v.y) +  (negateN.z * v1.v.z);
+
+    // Create and set the plane 
+    this->p = Plane(planeNormal.x, planeNormal.y, planeNormal.z, k); 
 }
 
 

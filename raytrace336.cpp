@@ -21,25 +21,16 @@ int main(int arg, char* argv[]){
         std::cout << faces[i] << '\n';
     }
 
-
-    Vector3 tst1(1, 0, 0);
+    Vector3 tst1(1, 1, 1);
     Vector3 tst2(0, 1, 1);
-
-    std::cout << tst1 + tst2 << '\n';
+    std::cout << tst1 - tst2 << '\n';
     std::cout << tst1 << '\n';
-    tst1 += tst2;
-    std::cout << tst1 << '\n';
-
-    std::cout << tst1 * 3<< '\n';
-    std::cout << tst1 << '\n';
-    tst1 *= 3;
+    tst1 -= tst2;
     std::cout << tst1 << '\n';
 
 
-    std::cout << tst1 * tst2<< '\n';
-    std::cout << tst1 << '\n';
-    tst1 *= tst2;
-    std::cout << tst1 << '\n';
+    std::cout << faces[0].p.a << ", " << faces[0].p.b << ", " << faces[0].p.c << ", " << faces[0].p.k <<'\n';
+    
     
     std::cout << std::endl;
 
