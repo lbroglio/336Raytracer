@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include<iostream>
 
+#include "vectors.hpp"
 #include "worldObjects.hpp"
 
 ObjVertex::ObjVertex(double x, double y, double z, double u, double v, double i, double j, double k){
@@ -53,45 +54,20 @@ Face::Face(ObjVertex v1, ObjVertex v2, ObjVertex v3){
     this->v1 = v1;
     this->v2 = v2;
     this->v3 = v3;
+
+    //Calcuate the plane this face is on
+    
+    // Get Vectors representing two of the triangles sides
+    //Vector3 aVector = v2.v - v1.v;
+    //Vector3 bVector = v3.v - v1.v;
+
+
 }
 
 
 
 Face::Face(ObjVertex v1, ObjVertex v2, ObjVertex v3, Material mat){
-    // TODO - REWORK TRIANGLE CHECKING CODE
-    /*
-    // Determine if a valid triangle is given 
-    int a = 0;
-    // Check if all three points lie on a plane (One of there all components if equal)
-    if(v1.v.x == v2.v.x && v2.v.x == v3.v.x){
-        // Check that it is a valid triangle
-        std::cout << "checkFired" << '\n';
-        a = v1.v.y * (v2.v.z - v3.v.z) + v2.v.y * (v3.v.z - v1.v.z) + v3.v.y * (v1.v.z - v2.v.z);
-    }
-    else if(v1.v.y == v2.v.y && v2.v.y == v3.v.y){
-        // Check that it is a valid triangle
-        std::cout << "checkFired" << '\n';
-        a = v1.v.x * (v2.v.z - v3.v.z) + v2.v.x * (v3.v.z - v1.v.z) + v3.v.x * (v1.v.z - v2.v.z);
-        
-    }
-    else if(v1.v.z == v2.v.z && v2.v.z == v3.v.z){
-        // Check that it is a valid triangle
-        std::cout << "checkFired" << '\n';
-        a = v1.v.y * (v2.v.x - v3.v.x) + v2.v.y * (v3.v.x - v1.v.x) + v3.v.y * (v1.v.x - v2.v.x);
-    }
-    else{
-        std::cout << "Np CHeck fired" << '\n';
-    }
-
-    // If the vertices do not form a triangle because the side lengths are wrong or they all line on differnet planes
-    if(a == 0){
-        throw std::invalid_argument("v1, v2, and v3 must form a valid triangle");
-    }
-    */
-
-    this->v1 = v1;
-    this->v2 = v2;
-    this->v3 = v3;
+    *this = Face(v1, v2, v3);
     this->mat = mat;
 }
 
@@ -116,16 +92,6 @@ std::ostream& operator<<(std::ostream& o, const Material& m){
     return o;
 
 }
-
-
-std::ostream& operator<<(std::ostream& o, const Vertex& v){
-    o << "Vertex:{";
-    o << "x: " << v.x << ", y: " << v.y << ", z: " << v.z;
-    o <<"}\n";
-    
-    return o;
-}
-
 
 std::ostream& operator<<(std::ostream& o, const Face& f){
     o << "Face:{\n";

@@ -5,6 +5,12 @@
 
 #include "vectors.hpp"
 
+/**
+ * @brief Renaming of Vector3 to Vertex.
+ * Represents a single point in the world;
+ * 
+ */
+typedef Vector3 Vertex;
 
 
 /**
@@ -60,49 +66,6 @@ class Material{
      * @return The output string after the Material's representation is printed
      */
     friend std::ostream& operator<<(std::ostream& o, const Material& m);
-};
-
-
-/**
- * @brief Represents a point in the world
- * 
- */
-class Vertex {
-    public:
-        /**
-         * @brief Construct a new Vertex object
-         * 
-         * @param x The x positon of the created vertex
-         * @param y The y position of the created vertex
-         * @param z The z position of the created vertex
-         */
-        Vertex(double x, double y, double z): x(x), y(y), z(z){}
-        /**
-         * @brief Construct a new Vertex object
-         * Default constructor sets all elements to zero
-         */
-        Vertex(): x(0), y(0), z(0){}
-        /**
-         * @brief x postion of this Vertex
-         */
-        double x;
-        /**
-         * @brief y postion of this Vertex
-         */
-        double y;
-        /**
-         * @brief z postion of this Vertex
-         */
-        double z;
-    /**
-     * @brief Create a string representation of a Vertex and pass it into an output stream
-     * 
-     * @param o output stream to print to
-     * @param v Vertex to print a string representation of
-     * @return The output string after the Vertex's representation is printed
-     */
-    friend std::ostream& operator<<(std::ostream& o, const Vertex& v);
-
 };
 
 /**
@@ -219,6 +182,32 @@ class ObjVertex {
 };
 
 /**
+ * @brief Represnets the plane a face is on. Used for calculating intersection with rays
+ * 
+ */
+class Plane{
+    public:
+        /**
+         * @brief Construct a new Plane object with the given values
+         * 
+         * @param a a component of the new plane
+         * @param b b component of the new plane
+         * @param c c component of the new plane
+         * @param k k component of the new plane
+         */
+        Plane(double a, double b, double c, double k): a(a), b(b), c(c), k(k){}
+        /**
+         * @brief Construct a new Plane object -- Default constructor creates a plane with all elements set to 0
+         * 
+         */
+        Plane(): a(0), b(0), c(0), k(0){}
+        double a;
+        double b;
+        double c;
+        double k;
+};
+
+/**
  * @brief Holds the information of a triangular face within the world
  * 
  */
@@ -261,6 +250,12 @@ class Face {
          * 
          */
         Material mat;
+        /**
+         * @brief The plane this face is on calculated from the vertex values
+         * 
+         */
+        Plane p;
+
 
     /**
      * @brief Create a string representation of a Face and pass it into an output stream
