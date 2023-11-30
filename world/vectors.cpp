@@ -80,3 +80,7 @@ std::ostream& operator<<(std::ostream& o, const Vector3& v){
     
     return o;
 }
+
+double Vector3::dot(Vector3 v){
+   return (this->x * v.x) + (this->y * v.y) +  (this->z * v.z);
+}

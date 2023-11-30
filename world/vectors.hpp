@@ -38,6 +38,13 @@ class Vector3{
          */
         Vector3(): x(0), y(0), z(0){}
         /**
+         * @brief Takes the dot product of this Vector with another given Vector3
+         * 
+         * @param v The Vector3 to take the dot product with
+         * @return The dot product of this Vector3 and v 
+         */
+        double dot(Vector3 v);
+        /**
          * @brief Add override for adding together two Vectro component wise (x1 +x2 ... )
          * 
          * @param v Vectro to add to this one
