@@ -1,9 +1,12 @@
 #include<iostream>
+#include<fstream>
 #include<map>
 
 #include "file-io/modelReaders.hpp"
+#include "file-io/imageOut.hpp"
 #include "world/worldObjects.hpp"
 #include "world/vectors.hpp"
+#include "raycast/raycast.hpp"
 
 
 int main(int arg, char* argv[]){
@@ -14,6 +17,21 @@ int main(int arg, char* argv[]){
     // Read in the .obj file specified by the first argument
     ObjReader oReader(argv[1]);
     std::vector<Face> faces = oReader.readInFile(mats);
+
+    // Render the image
+    Color** pixels;
+    pixels = raytrace(Vector3(0, 0, -3), 0, 0, Vector3(0, 10, 0), 8, 1080, 1080, Color(255, 255, 255), &faces);
+
+    // Output the pixels as an image file
+    
+    // Open the output image
+    std::ofstream outFile("renderedImage.ppm");
+
+    // Output the rendered image
+    PPMOut(&outFile, pixels, 1080, 1080);
+
+    //Close the file 
+    outFile.close();
 
     return 0;
 }

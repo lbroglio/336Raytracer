@@ -1,4 +1,5 @@
 #include<vector>
+#include<iostream>
 #include<cmath>
 
 #include "../world/worldObjects.hpp"
@@ -26,8 +27,8 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
         Plane currPlane = currFace->p;
 
         Vector3 planeVector(currPlane.a, currPlane.b, currPlane.c);
-        double vectorLambda = -1 * ((planeVector.dot(startPos) + currPlane.k)/ planeVector.dot(direction));
-
+        double vectorLambda = -1 * ((planeVector.dot(startPos) + currPlane.k) / planeVector.dot(direction));
+      
         // Use the lambda to find the coordinates of the intersection point 
         Vertex intersectionPoint = (vectorLambda * direction) + startPos;
 
@@ -38,13 +39,14 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
         if(vectorLambda < 0){
             continue;
         }
-
+         
         // Check if the ray is in the bounding box of the triangle
         // This saves time over doing a complete check if it isn't necessary
         // This check is done but seeing it the intersection point's elements are smaller than the minimum / 
         // larger than the maximum of the corresponding elements of the face
 
         //Find the mins and maxes for the face
+
         int minX = std::min(std::min(currFace->v1.v.x, currFace->v2.v.x), currFace->v3.v.x);
         int minY = std::min(std::min(currFace->v1.v.y, currFace->v2.v.y), currFace->v3.v.y);
         int minZ = std::min(std::min(currFace->v1.v.z, currFace->v2.v.z), currFace->v3.v.z);
@@ -78,20 +80,21 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
                 continue;
             }
 
+
              // Check for  f1 -> f3
-            Vector3 v = currFace->v1.v - currFace->v3.v;
-            Vector3 a = v * (intersectionPoint - currFace->v3.v);
-            Vector3 b = v * (currFace->v2.v - currFace->v3.v);
-            int c = a.dot(b);
+            v = currFace->v1.v - currFace->v3.v;
+            a = v * (intersectionPoint - currFace->v3.v);
+            b = v * (currFace->v2.v - currFace->v3.v);
+            c = a.dot(b);
             if(c <= 0){
                 continue;
             }
 
             // Check for  f1 -> f2
-            Vector3 v = currFace->v1.v - currFace->v2.v;
-            Vector3 a = v * (intersectionPoint - currFace->v2.v);
-            Vector3 b = v * (currFace->v3.v - currFace->v2.v);
-            int c = a.dot(b);
+            v = currFace->v1.v - currFace->v2.v;
+            a = v * (intersectionPoint - currFace->v2.v);
+            b = v * (currFace->v3.v - currFace->v2.v);
+            c = a.dot(b);
             if(c <= 0){
                 continue;
             }
@@ -99,7 +102,7 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
             // If this point is reached all checks have been passed
 
             // Get the distance between the intersection point and the vector's origin position
-            double dist = sqrt(std::pow(startPos.x, intersectionPoint.x) + std::pow(startPos.y, intersectionPoint.y) + std::pow(startPos.z, intersectionPoint.z));
+            double dist = sqrt(std::pow(startPos.x + intersectionPoint.x, 2) + std::pow(startPos.y + intersectionPoint.y, 2) + std::pow(startPos.z + intersectionPoint.z, 2));
 
             // If the distance is less than the currently track distance set this face to the tracked face (it is the new closest)
             if(dist < closestDist){
@@ -121,6 +124,74 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
 
 
 
-Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightPos, int viewLength, int viewWidth){
+Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightPos, double viewLength, int imgLength, int imgWidth,Color worldColor, std::vector<Face>* faces){    
     // Allocate the output array
+    Color** pixels = new Color*[imgWidth];
+    for(int i=0; i < imgWidth; i++){
+        *(pixels + i) = new Color[imgLength];
+    }
+
+    // Calculate the side length of the pixels by dividing the viewLength by the img imgLength
+    double pixelSize = viewLength / imgLength;
+
+    // Cast rays for every pixel
+    for(int row=0; row < imgWidth; row++){
+        for(int col=0; col < imgLength; col++){
+            // Determine the location of the pixel in worldspace
+
+            // Find the x and y values by ultiplying this pixels column and row shifted corresponding to the location 
+            //of the center ( The location of the camera ) by the side length of the pixels
+            double pixelLocX = (col - (imgLength / 2)) * pixelSize;
+            double pixelLocY = ((imgWidth / 2) - row) * pixelSize;
+
+            // The z position is one unit in front of the camera -- Rotation is handled later so for now its assumed the -z 
+            // direction is "in front" of the camera
+            double pixelLocZ = cameraPos.z + 1;
+
+            // Build a direction vector from the pixels wordspace position
+            Vector3 direction(pixelLocX, pixelLocY, pixelLocZ);
+
+            // Apply the rotation of the camera
+            
+            // Apply yaw 
+            direction.x = (direction.x * cos(cameraYaw)) + (direction.z * sin(cameraYaw));
+            direction.z = ((-1 * direction.x) * sin(cameraYaw)) + (direction.z * cos(cameraYaw));
+
+            //Apply pitch
+            direction.y = (direction.y * cos(cameraYaw)) - (direction.z * sin(cameraYaw));
+            direction.z = (direction.y * sin(cameraYaw)) - (direction.z * cos(cameraYaw));
+
+            // For storing the intersection point of the ray
+            Vector3 iPoint;
+
+            // Cast the primary ray for this pixel
+            int faceIndex = castRay(cameraPos, direction, faces, &iPoint);
+
+            // If the ray intersected a face
+            if(faceIndex != -1){
+                // TODO - Ensure proper color blending in the case of shadows and reflections when those ray types
+                // are implemented
+
+                // Get the material from the intersected face
+                Material mat = faces->at(faceIndex).mat;
+
+                // Set the the color of this pixel to be the diffuse component of the material scaled by
+                // the distance of the camera to the intersection point
+            double dist = sqrt(std::pow(cameraPos.x + iPoint.x, 2) + std::pow(cameraPos.y + iPoint.y, 2) + std::pow(cameraPos.z + iPoint.z, 2));
+                double scalar = 1 / (dist * 0.5);
+                Color scaledColor(mat.diffuseComponent.r / scalar, mat.diffuseComponent.g / scalar, mat.diffuseComponent.b / scalar);
+                pixels[row][col] = scaledColor;
+            }
+            // If the ray did not intersect a face 
+            else{
+                // Set the color of this pixel to be the worldColor
+                pixels[row][col] = worldColor;
+            }
+
+        }
+    }
+
+    // Return the image array 
+    return pixels;
+
 }

@@ -1,0 +1,9 @@
+mtllib simplePlane.mtl
+o Plane
+v -1.0 0.0 1.0
+v 1.0 0.0 1.0
+v 0.0 1.0 2.0
+usemtl RedMTL
+f 1 2 3
+
+
