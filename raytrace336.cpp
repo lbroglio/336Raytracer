@@ -18,9 +18,16 @@ int main(int arg, char* argv[]){
     ObjReader oReader(argv[1]);
     std::vector<Face> faces = oReader.readInFile(mats);
 
+    /*
+    std::ofstream logFile("log.txt");
+    for(size_t i =0; i < faces.size(); i++){
+        logFile << faces[i] << "-----\n";
+    }
+    */
+
     // Render the image
     Color** pixels;
-    pixels = raytrace(Vector3(0, 0, -3), 0, 0, Vector3(0, 10, 0), 8, 1080, 1080, Color(255, 255, 255), &faces);
+    pixels = raytrace(Vector3(0, 0, -5), 0, 0, Vector3(0, 10, 0), 8, 1080, 1080, Color(255, 255, 255), &faces);
 
     // Output the pixels as an image file
     

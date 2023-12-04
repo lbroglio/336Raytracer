@@ -56,16 +56,16 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
         int maxZ = std::max(std::max(currFace->v1.v.z, currFace->v2.v.z), currFace->v3.v.z);
 
         // Setup booleans for if the intersection is in the bounding box
-        int inMinX = intersectionPoint.x >= minX;
-        int inMinY = intersectionPoint.y >= minY;
-        int inMinZ = intersectionPoint.z >= minZ;
-
-        int inMaxX = intersectionPoint.x <= maxX;
-        int inMaxY = intersectionPoint.y <= maxY;
-        int inMaxZ = intersectionPoint.z <= maxZ;
+        int inMinX = !(intersectionPoint.x < minX);
+        int inMinY = !(intersectionPoint.y < minY);
+        int inMinZ = !(intersectionPoint.z < minZ);
+    
+        int inMaxX = !(intersectionPoint.x > maxX);
+        int inMaxY = !(intersectionPoint.y > maxY);
+        int inMaxZ = !(intersectionPoint.z > maxZ);
 
         // If the vector is inside the bounding box
-        if(inMinX && inMinY && inMinZ && inMaxX && inMaxY && inMaxZ){
+        if(1 || (inMinX && inMinY && inMinZ && inMaxX && inMaxY && inMaxZ)){
             // Perform the full check to see if the intersection point is inside the face
             
             // Perform the operation three times once for f2-> f3, f1->f3, and f1->f2
@@ -76,7 +76,7 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
             Vector3 a = v * (intersectionPoint - currFace->v3.v);
             Vector3 b = v * (currFace->v1.v - currFace->v3.v);
             int c = a.dot(b);
-            if(c <= 0){
+            if(c < 0){
                 continue;
             }
 
@@ -86,7 +86,7 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
             a = v * (intersectionPoint - currFace->v3.v);
             b = v * (currFace->v2.v - currFace->v3.v);
             c = a.dot(b);
-            if(c <= 0){
+            if(c < 0){
                 continue;
             }
 
@@ -95,14 +95,14 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
             a = v * (intersectionPoint - currFace->v2.v);
             b = v * (currFace->v3.v - currFace->v2.v);
             c = a.dot(b);
-            if(c <= 0){
+            if(c < 0){
                 continue;
             }
 
             // If this point is reached all checks have been passed
 
             // Get the distance between the intersection point and the vector's origin position
-            double dist = sqrt(std::pow(startPos.x + intersectionPoint.x, 2) + std::pow(startPos.y + intersectionPoint.y, 2) + std::pow(startPos.z + intersectionPoint.z, 2));
+            double dist = sqrt(std::pow(startPos.x - intersectionPoint.x, 2) + std::pow(startPos.y - intersectionPoint.y, 2) + std::pow(startPos.z - intersectionPoint.z, 2));
 
             // If the distance is less than the currently track distance set this face to the tracked face (it is the new closest)
             if(dist < closestDist){
@@ -177,9 +177,9 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
 
                 // Set the the color of this pixel to be the diffuse component of the material scaled by
                 // the distance of the camera to the intersection point
-            double dist = sqrt(std::pow(cameraPos.x + iPoint.x, 2) + std::pow(cameraPos.y + iPoint.y, 2) + std::pow(cameraPos.z + iPoint.z, 2));
-                double scalar = 1 / (dist * 0.5);
-                Color scaledColor(mat.diffuseComponent.r / scalar, mat.diffuseComponent.g / scalar, mat.diffuseComponent.b / scalar);
+                double dist = sqrt(std::pow(cameraPos.x - iPoint.x, 2) + std::pow(cameraPos.y - iPoint.y, 2) + std::pow(cameraPos.z - iPoint.z, 2));
+                double scalar = 1 / (dist * 0.25);
+                Color scaledColor(mat.diffuseComponent.r * scalar, mat.diffuseComponent.g * scalar, mat.diffuseComponent.b * scalar);
                 pixels[row][col] = scaledColor;
             }
             // If the ray did not intersect a face 
