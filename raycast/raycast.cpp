@@ -104,8 +104,8 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
             // Get the distance between the intersection point and the vector's origin position
             double dist = sqrt(std::pow(startPos.x - intersectionPoint.x, 2) + std::pow(startPos.y - intersectionPoint.y, 2) + std::pow(startPos.z - intersectionPoint.z, 2));
 
-            // If the distance is less than the currently track distance set this face to the tracked face (it is the new closest)
-            if(dist < closestDist){
+            // If the distance is less than the currently track distance set this face to the tracked face (it is the new closest) and the intersection point isn't the origin
+            if(dist < closestDist && intersectionPoint != startPos){
                 closestDist = dist;
                 trackedIndex = i;
                 trackedIPoint = intersectionPoint;
@@ -169,7 +169,17 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
 
             // If the ray intersected a face
             if(faceIndex != -1){
-                // TODO - Ensure proper color blending in the case of shadows and reflections when those ray types
+                Vector3 siPoint;
+                // Cast a shadow ray
+                int shadowFaceIndex = castRay(iPoint, lightPos, faces, &siPoint);
+
+                double shadowScalar = 1;
+                //  Set the shadow scalar if the shadow ray intersected a face other than itself
+                if(shadowFaceIndex != -1){
+                    shadowScalar = 0.5;
+                }
+
+                // TODO - Ensure proper color blending in the case of reflections when those ray types
                 // are implemented
 
                 // Get the material from the intersected face
@@ -178,8 +188,8 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
                 // Set the the color of this pixel to be the diffuse component of the material scaled by
                 // the distance of the camera to the intersection point
                 double dist = sqrt(std::pow(cameraPos.x - iPoint.x, 2) + std::pow(cameraPos.y - iPoint.y, 2) + std::pow(cameraPos.z - iPoint.z, 2));
-                double scalar = 1 / (dist * 0.25);
-                Color scaledColor(mat.diffuseComponent.r * scalar, mat.diffuseComponent.g * scalar, mat.diffuseComponent.b * scalar);
+                double distScalar = std::pow(1.3,  dist);
+                Color scaledColor(std::max((mat.diffuseComponent.r * shadowScalar) - distScalar, 0.0), std::max((mat.diffuseComponent.g * shadowScalar) - distScalar, 0.0), std::max((mat.diffuseComponent.b * shadowScalar) - distScalar, 0.0));
                 pixels[row][col] = scaledColor;
             }
             // If the ray did not intersect a face 

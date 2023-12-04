@@ -107,6 +107,22 @@ class Vector3{
          * @return This Vector after setting it to the cross product
          */
         Vector3 operator*=(const Vector3& v);
+        /**
+         * @brief == override used for comparing to Vectors
+         * 
+         * @param v Vector to compare to this one
+         * 
+         * @return int holding the truth value of the Vectors equivalence
+         */
+        int operator==(const Vector3& v);
+        /**
+         * @brief != override used for comparing to Vectors
+         * 
+         * @param v Vector to compare to this one
+         * 
+         * @return int holding the inverted truth value of the Vectors equivalence
+         */
+        int operator!=(const Vector3& v);
      /**
      * @brief * override used for performing scalar multiplication on this Vector3
      * 
