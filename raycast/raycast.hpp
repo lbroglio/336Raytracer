@@ -13,7 +13,7 @@
  * @param iPoint Pointer to a Vertex object used to return the intersection point between the cast ray and the face it intersects
  * @return The index of the first Face in the list face the ray intersects or -1 if no face is intersected.
  */
-int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex* iPoint);
+//int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex* iPoint);
 
 /**
  * @brief Peforms the raytrace operation on the model. Casts all the primary, shadow, and reflection rays.

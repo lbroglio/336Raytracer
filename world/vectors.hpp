@@ -138,6 +138,17 @@ class Vector3{
      * @return The output string after the Vector's representation is printed
      */
     friend std::ostream& operator<<(std::ostream& o, const Vector3& v);
+    
+    /**
+     * @brief Check if the components of two Vectors are within a given double dist (distance on number line -- 
+     * 0.0 and 0.49 are within 0.5 of each other)
+     * 
+     * @param v1 First Vector to compare
+     * @param v2 Second Vector to compare
+     * @param dist The distance to check if the the Vectors components are within from each other
+     * @return True if all components are within the given distance of each other; false if they are not.
+     */
+    friend int compsWithinDist(Vector3 v1, Vector3 v2, double dist);
 
 };
 

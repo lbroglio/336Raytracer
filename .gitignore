@@ -3,3 +3,7 @@
 
 # Binares
 bin
+
+# Ouput
+renderedImage.ppm
+renderedImage.png

@@ -1,5 +1,6 @@
 #include<vector>
 #include<iostream>
+#include<fstream>
 #include<cmath>
 
 #include "../world/worldObjects.hpp"
@@ -36,10 +37,10 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
         // to check if it is actually contained within the face
 
         // Check if lambda is positive (or zero); Only faces in the direction of the Vector can be intersected
-        if(vectorLambda < 0){
+        if(vectorLambda < 0 ){
             continue;
         }
-         
+
         // Check if the ray is in the bounding box of the triangle
         // This saves time over doing a complete check if it isn't necessary
         // This check is done but seeing it the intersection point's elements are smaller than the minimum / 
@@ -47,13 +48,13 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
 
         //Find the mins and maxes for the face
 
-        int minX = std::min(std::min(currFace->v1.v.x, currFace->v2.v.x), currFace->v3.v.x);
-        int minY = std::min(std::min(currFace->v1.v.y, currFace->v2.v.y), currFace->v3.v.y);
-        int minZ = std::min(std::min(currFace->v1.v.z, currFace->v2.v.z), currFace->v3.v.z);
+        double minX = std::min(std::min(currFace->v1.v.x, currFace->v2.v.x), currFace->v3.v.x);
+        double minY = std::min(std::min(currFace->v1.v.y, currFace->v2.v.y), currFace->v3.v.y);
+        double minZ = std::min(std::min(currFace->v1.v.z, currFace->v2.v.z), currFace->v3.v.z);
 
-        int maxX = std::max(std::max(currFace->v1.v.x, currFace->v2.v.x), currFace->v3.v.x);
-        int maxY = std::max(std::max(currFace->v1.v.y, currFace->v2.v.y), currFace->v3.v.y);
-        int maxZ = std::max(std::max(currFace->v1.v.z, currFace->v2.v.z), currFace->v3.v.z);
+        double maxX = std::max(std::max(currFace->v1.v.x, currFace->v2.v.x), currFace->v3.v.x);
+        double maxY = std::max(std::max(currFace->v1.v.y, currFace->v2.v.y), currFace->v3.v.y);
+        double maxZ = std::max(std::max(currFace->v1.v.z, currFace->v2.v.z), currFace->v3.v.z);
 
         // Setup booleans for if the intersection is in the bounding box
         int inMinX = !(intersectionPoint.x < minX);
@@ -75,7 +76,7 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
             Vector3 v = currFace->v2.v - currFace->v3.v;
             Vector3 a = v * (intersectionPoint - currFace->v3.v);
             Vector3 b = v * (currFace->v1.v - currFace->v3.v);
-            int c = a.dot(b);
+            double c = a.dot(b);
             if(c < 0){
                 continue;
             }
@@ -102,10 +103,10 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
             // If this point is reached all checks have been passed
 
             // Get the distance between the intersection point and the vector's origin position
-            double dist = sqrt(std::pow(startPos.x - intersectionPoint.x, 2) + std::pow(startPos.y - intersectionPoint.y, 2) + std::pow(startPos.z - intersectionPoint.z, 2));
+            double dist = sqrt(std::pow(intersectionPoint.x - startPos.x, 2) + std::pow(intersectionPoint.y - startPos.y, 2) + std::pow(intersectionPoint.z - startPos.z, 2));
 
             // If the distance is less than the currently track distance set this face to the tracked face (it is the new closest) and the intersection point isn't the origin
-            if(dist < closestDist && intersectionPoint != startPos){
+            if(dist < closestDist){
                 closestDist = dist;
                 trackedIndex = i;
                 trackedIPoint = intersectionPoint;
@@ -172,6 +173,16 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
                 Vector3 siPoint;
                 // Cast a shadow ray
                 int shadowFaceIndex = castRay(iPoint, lightPos, faces, &siPoint);
+
+                // Filter valid intersection points based on proximity to starting position
+                if(compsWithinDist(iPoint, siPoint, 0.0001) && shadowFaceIndex != -1){
+                    // If the points are ruled to be too close try again without the face included
+                    std::vector<Face> facesCopy = *faces;
+                    facesCopy.erase(facesCopy.begin() + shadowFaceIndex);
+
+                    shadowFaceIndex = castRay(iPoint, lightPos, &facesCopy, &siPoint);
+
+                }
 
                 double shadowScalar = 1;
                 //  Set the shadow scalar if the shadow ray intersected a face other than itself

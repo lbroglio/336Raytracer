@@ -10,6 +10,7 @@
 
 
 int main(int arg, char* argv[]){
+
     // Read in the .mtl file specified by the second argument
     MtlReader mReader(argv[2]);
     std::map<std::string, Material> mats = mReader.readInFile();
