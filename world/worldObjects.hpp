@@ -39,19 +39,25 @@ class Material{
          */
         double shininess;
         /**
+         * @brief The illumination modelof the material -- illum field in a .mtl file
+         */
+        int illumMode;
+        /**
+         * 
          * @brief Construct a new Material object with the given values
          * 
          * @param ac The ambient lighting color of this Material
          * @param dc The diffuse lighting color of this Material
          * @param dc The specular lighting color of this Material
          * @param s The shininess value of this material
+         * @param s The illumination mode value of this material
          */
-        Material(Color ac, Color dc, Color sc, double s): ambientComponent(ac), diffuseComponent(dc), specularComponent(sc), shininess(s){}
+        Material(Color ac, Color dc, Color sc, double s, int i): ambientComponent(ac), diffuseComponent(dc), specularComponent(sc), shininess(s), illumMode(i){}
         /**
          * @brief Construct a new Material object -- Default constructor creates a material with the default fields for a .mtl file
          * 
          */
-        Material(): ambientComponent(Color(51, 51, 51)), diffuseComponent(Color(204, 204, 204)),  specularComponent(Color(255, 255, 255)), shininess(0){}
+        Material(): ambientComponent(Color(51, 51, 51)), diffuseComponent(Color(204, 204, 204)),  specularComponent(Color(255, 255, 255)), shininess(0), illumMode(2){}
         /**
          * @brief Equals overinding allows a material to be set from another material
          * 

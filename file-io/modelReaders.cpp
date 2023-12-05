@@ -118,6 +118,7 @@ std::map<std::string, Material> MtlReader::readInFile(){
     Color Kd(204, 204, 204);
     Color Ks(255, 255, 255);
     double shininess = 0;
+    int illumMode = 2;
     std::string mtlName = " ";
 
     // Read lines from the file until the end
@@ -179,12 +180,17 @@ std::map<std::string, Material> MtlReader::readInFile(){
             // Parse the shininess as a double and use it to set the shininess var
            shininess = atof(splitStr[1].c_str());
         }
+        // Parse as the illumination mode value
+        else if(splitStr[0] == "illum"){
+            // Parse the shininess as a double and use it to set the shininess var
+           shininess = atof(splitStr[1].c_str());
+        }
         // If a new material is being indicated
         else if(splitStr[0] == "newmtl"){
             // If a material has been started
             if(mtlName != " "){
                 // Save the currently being read in material and reset
-                Material parsedMat(Ka, Kd, Ks, shininess);
+                Material parsedMat(Ka, Kd, Ks, shininess, illumMode);
 
                 // Associate the newly created material with its name in the map
                 matMap.insert({mtlName, parsedMat});
@@ -204,7 +210,7 @@ std::map<std::string, Material> MtlReader::readInFile(){
     }
 
     // Save the last read in material
-    Material parsedMat(Ka, Kd, Ks, shininess);
+    Material parsedMat(Ka, Kd, Ks, shininess, illumMode);
     matMap.insert({mtlName, parsedMat});
 
     // Return the mapping of materials

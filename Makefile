@@ -19,7 +19,6 @@ raycast.o: raycast/raycast.hpp raycast/raycast.cpp
 imageOut.o: file-io/imageOut.cpp file-io/imageOut.hpp bin
 	g++ -Wall -Werror -ggdb -c  file-io/imageOut.cpp -o bin/imageOut.o
 
-
 bin:
 	if  ! [[ -d "./bin" ]]; then mkdir bin; fi
 
