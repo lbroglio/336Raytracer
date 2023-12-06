@@ -24,12 +24,12 @@ int main(int arg, char* argv[]){
     for(size_t i =0; i < faces.size(); i++){
         logFile << faces[i] << "-----\n";
     }
-    logFile.close()
+    logFile.close();
     */
 
     // Render the image
     Color** pixels;
-    pixels = raytrace(Vector3(0, 1, -5), 0, 0, Vector3(0, 10, -3), 8, 1080, 1080, Color(135, 206, 235), &faces);
+    pixels = raytrace(Vector3(0, 1, -5), 0, 0, Vector3(0, 10, -6), 8, 1080, 1080, Color(135, 206, 235), &faces);
 
     // Output the pixels as an image file
     
@@ -41,6 +41,19 @@ int main(int arg, char* argv[]){
 
     //Close the file 
     outFile.close();
+
+    // Call python script to convert output to png
+    system("python convertImage.py renderedImage.ppm");
+
+    // Check if the .png file exists
+    std::ifstream checkFile("renderedImage.png");
+    if (checkFile.is_open()) {
+        // If the file exists delete the ppm 
+        remove("renderedImage.ppm");
+        checkFile.close();
+    }
+
+
 
     return 0;
 }

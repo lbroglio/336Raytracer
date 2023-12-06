@@ -6,6 +6,16 @@
 #include "../world/worldObjects.hpp"
 #include "../world/vectors.hpp"
 
+/**
+ * @brief Function to cast a ray. Draws a ray from the given point in the indicated direction and returns the index 
+ * of the first Face (first meaning the Face closest to it in the world) it intersects with in the given list (if any).
+ * 
+ * @param startPos The point at which the ray starts / is cast from
+ * @param direction Vector representing the direction the ray is cast in
+ * @param faces A list of faces in the world to check for intersections with the ray
+ * @param iPoint Pointer to a Vertex object used to return the intersection point between the cast ray and the face it intersects
+ * @return The index of the first Face in the list face the ray intersects or -1 if no face is intersected.
+ */
 int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex* iPoint){
     
     // Tracks the closest intersected face so far
@@ -123,9 +133,114 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
 
 }
 
+/**
+ * @brief Casts a reflection ray off of the given surface Handles recursion in the event of hitting mutliple reflection surfaces
+ * 
+ * @param intersectionPoint The point at which the reflectivesurface was hit
+ * @param intersectedFaceIndex The index of the reflective surface in the faces vector
+ * @param direction The direction of the ray which in intersected the reflective surface
+ * @param faces Pointer to a vector containing all of the faces in the world space
+ * @param currentDepth The current number of relfection rays "deep" this face is (How deep the recursion is)
+ * @param maxDepth The maximum reflection/ recursion depth
+ * @param lightPos The position of the worlds light source
+ * @param toSet Pointer to set thbe output color to 
+ * @return 1 if a reflected color has been successfully found. 0 if not
+ */
+int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 direction, std::vector<Face>* faces, int currentDepth, int maxDepth, Vertex lightPos, Color* toSet){
+    // If this ray's reflection depth is at the maximum
+    if(currentDepth == maxDepth){
+        // Return 0 to indicate that no reflected color was found
+        return 0;
+    }
+
+    // Calculate the direction of the reflection ray
+
+    // Get a normal vector for the intersected face
+    Face f = faces->at(intersectedFaceIndex);
+    Vector3 aVector = f.v2.v -f. v1.v;
+    Vector3 bVector = f.v3.v - f.v1.v;
+    Vector3 faceNormal = aVector * bVector;
+
+    // Normalize
+    double magnitude = sqrt(std::pow(faceNormal.x, 2) + std::pow(faceNormal.y, 2) + std::pow(faceNormal.z, 2));
+    faceNormal.x = faceNormal.x / magnitude;
+    faceNormal.y = faceNormal.y / magnitude;
+    faceNormal.x = faceNormal.z / magnitude;
+
+    // Use the normal to find the reflection 
+    Vector3 reflectionRay = direction - ((2 * direction.dot(faceNormal)) * faceNormal);
+
+    // Cast the relfection ray 
+    Vector3 riPoint;
+    int rIndex = castRay(intersectionPoint, reflectionRay, faces, &riPoint);
+
+    // If no face was intersected
+    if(rIndex == -1){
+        // Return 0 to indicate that no reflected color was found
+        return 0;
+    }
+
+    // Filter the reflection if the new intersection point is too close to the origin point of the reflection ray
+    if(compsWithinDist(intersectionPoint, riPoint, 0.0001)){
+        // Recast the reflection with the origin face removed
+        std::vector<Face> facesCopy = *faces;
+        facesCopy.erase(facesCopy.begin() + rIndex);
+
+        rIndex = castRay(intersectionPoint, reflectionRay, &facesCopy, &riPoint);
+
+        // If no face was intersected
+        if(rIndex == -1){
+            // Return 0 to indicate that no reflected color was found
+            return 0;
+        }
+    }
 
 
-Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightPos, double viewLength, int imgLength, int imgWidth,Color worldColor, std::vector<Face>* faces){    
+
+
+    // Get the material from the intersected face and check if it is reflective 
+    Material intersectedMat = faces->at(rIndex).mat;
+
+    // If another reflective material is hit recursively call
+    if(intersectedMat.illumMode == 3 || intersectedMat.illumMode == 5){
+        return castReflection(riPoint, rIndex, reflectionRay, faces, currentDepth+1, maxDepth, lightPos, toSet);
+    }
+
+    // If a diffuse / non reflective material was hit
+
+    // Cast a shadow ray to ensure that the hit material has light
+    Vector3 siPoint;
+    // Cast a shadow ray
+    int shadowFaceIndex = castRay(riPoint, lightPos, faces, &siPoint);
+
+    // Filter valid intersection points based on proximity to starting position
+    if(compsWithinDist(riPoint, siPoint, 0.0001) && shadowFaceIndex != -1){
+        // If the points are ruled to be too close try again without the face included
+            std::vector<Face> facesCopy = *faces;
+            facesCopy.erase(facesCopy.begin() + shadowFaceIndex);
+
+            shadowFaceIndex = castRay(riPoint, lightPos, &facesCopy, &siPoint);
+    }
+
+    // If the shadow ray returns something other than negative 1 this means there is no path from the reflected object to light
+    // so 0 is returned to indicate that no reflected color was found
+    if(shadowFaceIndex != -1){
+        return 0;
+    }
+
+    // If the reflected object is lit 
+    
+    // Get its color
+    Color reflectedColor = faces->at(rIndex).mat.diffuseComponent;
+
+    // Set the color and return 1 to indicate success
+    *toSet = reflectedColor;
+    return 1;
+}
+
+
+
+Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightPos, double viewLength, int imgLength, int imgWidth, Color worldColor, std::vector<Face>* faces){    
     // Allocate the output array
     Color** pixels = new Color*[imgWidth];
     for(int i=0; i < imgWidth; i++){
@@ -189,18 +304,32 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
                 if(shadowFaceIndex != -1){
                     shadowScalar = 0.5;
                 }
-
-                // TODO - Ensure proper color blending in the case of reflections when those ray types
-                // are implemented
-
                 // Get the material from the intersected face
                 Material mat = faces->at(faceIndex).mat;
+
+                // Setup the Color to set the pixel to (Before any modification)
+                Color pixelColor = mat.diffuseComponent;
+
+                // Decide whether to cast a reflection ray based on the illum mode of the intersected faces material
+                // by checking if the faces material is set up for relfection
+                if(mat.illumMode == 3 || mat.illumMode == 5){
+                    // Cast a reflection ray
+                    Color reflectedColor;
+                    int hasReflection = castReflection(iPoint, faceIndex, direction, faces, 0, 5, lightPos, &reflectedColor);
+
+                    // Check if the reflection was succesful
+                    if(hasReflection == 1){
+                        // Set the color to the one being reflected
+                        pixelColor = reflectedColor;
+                        shadowScalar = 1;
+                    }
+                }
 
                 // Set the the color of this pixel to be the diffuse component of the material scaled by
                 // the distance of the camera to the intersection point
                 double dist = sqrt(std::pow(cameraPos.x - iPoint.x, 2) + std::pow(cameraPos.y - iPoint.y, 2) + std::pow(cameraPos.z - iPoint.z, 2));
                 double distScalar = std::pow(1.3,  dist);
-                Color scaledColor(std::max((mat.diffuseComponent.r * shadowScalar) - distScalar, 0.0), std::max((mat.diffuseComponent.g * shadowScalar) - distScalar, 0.0), std::max((mat.diffuseComponent.b * shadowScalar) - distScalar, 0.0));
+                Color scaledColor(std::max((pixelColor.r * shadowScalar) - distScalar, 0.0), std::max((pixelColor.g * shadowScalar) - distScalar, 0.0), std::max((pixelColor.b * shadowScalar) - distScalar, 0.0));
                 pixels[row][col] = scaledColor;
             }
             // If the ray did not intersect a face 

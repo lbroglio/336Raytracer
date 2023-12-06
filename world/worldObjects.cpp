@@ -87,6 +87,7 @@ Material Material::operator=(const Material& m){
     diffuseComponent = m.diffuseComponent;
     specularComponent = m .specularComponent;
     shininess = m.shininess;
+    illumMode = m.illumMode;
 
     return *this;
 }
@@ -98,6 +99,7 @@ std::ostream& operator<<(std::ostream& o, const Material& m){
     o << "\t Diffuse component: (" << m.diffuseComponent.r << ", "<<  m.diffuseComponent.g << ", " << m.diffuseComponent.b << ")\n";
     o << "\t Specular component: (" << m.specularComponent.r << ", "<<  m.specularComponent.g << ", " << m.specularComponent.b << ")\n";
     o << "\t Shininess Value: " << m.shininess << "\n";
+    o << "\t illum Value: " << m.illumMode << "\n";
     o << "}\n";
 
     return o;

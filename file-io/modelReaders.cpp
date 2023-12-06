@@ -182,8 +182,8 @@ std::map<std::string, Material> MtlReader::readInFile(){
         }
         // Parse as the illumination mode value
         else if(splitStr[0] == "illum"){
-            // Parse the shininess as a double and use it to set the shininess var
-           shininess = atof(splitStr[1].c_str());
+            // Parse the illum filed as an int and use it to set the illumMode var
+           illumMode = atoi(splitStr[1].c_str());
         }
         // If a new material is being indicated
         else if(splitStr[0] == "newmtl"){
