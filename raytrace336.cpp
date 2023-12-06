@@ -7,9 +7,19 @@
 #include "world/worldObjects.hpp"
 #include "world/vectors.hpp"
 #include "raycast/raycast.hpp"
+#include "configuration/configurator.hpp"
 
 
-int main(int arg, char* argv[]){
+int main(int argc, char* argv[]){
+    // Setup program configurations
+    Configurator config;
+
+    // If a configuration file was given on the command line use it to set program configs
+    if(argc > 3){
+        ConfigReader cReader = ConfigReader(argv[3]);
+
+        config =  cReader.readInFile();
+    }
 
     // Read in the .mtl file specified by the second argument
     MtlReader mReader(argv[2]);
@@ -29,7 +39,7 @@ int main(int arg, char* argv[]){
 
     // Render the image
     Color** pixels;
-    pixels = raytrace(Vector3(0, 1, -5), 0, 0, Vector3(0, 10, -6), 8, 1080, 1080, Color(135, 206, 235), &faces);
+    pixels = raytrace(config.cameraPos, 0, 0, config.lightPos, 8, config.imageLength, config.imageWidth, Color(135, 206, 235), &faces, &config);
 
     // Output the pixels as an image file
     
@@ -37,7 +47,7 @@ int main(int arg, char* argv[]){
     std::ofstream outFile("renderedImage.ppm");
 
     // Output the rendered image
-    PPMOut(&outFile, pixels, 1080, 1080);
+    PPMOut(&outFile, pixels, config.imageLength, config.imageWidth);
 
     //Close the file 
     outFile.close();
@@ -52,6 +62,12 @@ int main(int arg, char* argv[]){
         remove("renderedImage.ppm");
         checkFile.close();
     }
+
+    // Memory clean up
+    for(int i=0; i < config.imageWidth; i++){
+        delete[] pixels[i];
+    }
+    delete[] pixels;
 
 
 

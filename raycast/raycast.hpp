@@ -2,6 +2,7 @@
 
 #include "../world/worldObjects.hpp"
 #include "../world/vectors.hpp"
+#include "../configuration/configurator.hpp"
 
 /**
  * @brief Peforms the raytrace operation on the model. Casts all the primary, shadow, and reflection rays.
@@ -20,6 +21,7 @@
  * @param imgWidth The number of pixels wide (high) the image being output is
  * @param worldColor The color to assign pixels for which the ray didn't intersect a face
  * @param faces Pointer to a std::vector of faces containing the list of faces in the world
+ * @param config Object which holds user set configurations of the program. 
  * @return An array of Color objects represeting the rendered image
  */
-Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightPos, double viewLength, int imgLength, int imgWidth,Color worldColor, std::vector<Face>* faces);
+Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightPos, double viewLength, int imgLength, int imgWidth,Color worldColor, std::vector<Face>* faces, Configurator* config);

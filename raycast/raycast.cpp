@@ -3,6 +3,7 @@
 #include<fstream>
 #include<cmath>
 
+#include "../configuration/configurator.hpp"
 #include "../world/worldObjects.hpp"
 #include "../world/vectors.hpp"
 
@@ -240,7 +241,7 @@ int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 d
 
 
 
-Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightPos, double viewLength, int imgLength, int imgWidth, Color worldColor, std::vector<Face>* faces){    
+Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightPos, double viewLength, int imgLength, int imgWidth, Color worldColor, std::vector<Face>* faces, Configurator* config){    
     // Allocate the output array
     Color** pixels = new Color*[imgWidth];
     for(int i=0; i < imgWidth; i++){
@@ -315,7 +316,7 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
                 if(mat.illumMode == 3 || mat.illumMode == 5){
                     // Cast a reflection ray
                     Color reflectedColor;
-                    int hasReflection = castReflection(iPoint, faceIndex, direction, faces, 0, 5, lightPos, &reflectedColor);
+                    int hasReflection = castReflection(iPoint, faceIndex, direction, faces, 0, config->maximumReflectionDeph, lightPos, &reflectedColor);
 
                     // Check if the reflection was succesful
                     if(hasReflection == 1){
@@ -328,7 +329,7 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
                 // Set the the color of this pixel to be the diffuse component of the material scaled by
                 // the distance of the camera to the intersection point
                 double dist = sqrt(std::pow(cameraPos.x - iPoint.x, 2) + std::pow(cameraPos.y - iPoint.y, 2) + std::pow(cameraPos.z - iPoint.z, 2));
-                double distScalar = std::pow(1.3,  dist);
+                double distScalar = std::pow(config->shadowScaleBase,  dist);
                 Color scaledColor(std::max((pixelColor.r * shadowScalar) - distScalar, 0.0), std::max((pixelColor.g * shadowScalar) - distScalar, 0.0), std::max((pixelColor.b * shadowScalar) - distScalar, 0.0));
                 pixels[row][col] = scaledColor;
             }

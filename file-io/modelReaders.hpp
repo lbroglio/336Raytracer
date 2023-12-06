@@ -7,6 +7,7 @@
 #include<map>
 
 #include "../world/worldObjects.hpp"
+#include "../configuration/configurator.hpp"
 
 
 /**
@@ -73,6 +74,38 @@ class MtlReader {
          * @return A map storing the material objects read in associated with there names
          */
         std::map<std::string, Material> readInFile();
+
+    private:
+        /**
+         * @brief The path to the file to read in 
+         */
+        std::string targetPath;
+};
+
+/**
+ * @brief Object which reads in a .config file containing configurations for this program
+ * 
+ */
+class ConfigReader {
+    public:
+        /**
+         * @brief Construct a new ConfigReader object
+         * 
+         * @param path The path to the file to read in as a c++ string object
+         */
+        ConfigReader(std::string path): targetPath(path){}
+        /**
+         * @brief Construct a new ConfigReader object
+         * 
+         * @param path The path to the file to read in as a c style char* 
+         */
+        ConfigReader(char* path): targetPath(std::string(path)){}
+        /**
+         * @brief Read in the .config file this ConfigReader is pointing to and return its contents as a  Configurator object
+         * 
+         * @return A Configurator object built from the file 
+         */
+        Configurator readInFile();
 
     private:
         /**

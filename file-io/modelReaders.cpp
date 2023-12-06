@@ -362,3 +362,105 @@ std::map<std::string, Material> MtlReader::readInFile(){
  std::vector<Face> ObjReader::readInFile(){
     return this->readInFile(std::map<std::string, Material>());
  }
+
+
+ Configurator ConfigReader::readInFile(){
+    // Open the target file for reading 
+    std::ifstream configFile(targetPath);
+
+    // Configurator to set with fields from file
+    Configurator config;
+
+    // Read lines from the file until the end
+    while(configFile.peek() != EOF){
+        // Read the next line from the file
+        std::string line = readLine(&configFile);
+
+        // Remove all whitespace from the line
+        std::string noWhiteSpace;
+        noWhiteSpace.reserve(line.size());
+        for(size_t i=0; i < line.size(); i++){
+            char currChar = line[i];
+            if(currChar != ' '){
+                noWhiteSpace += currChar;
+            }
+        }
+        
+        // Split the line up by spaces
+        std::string* splitStr = splitString(noWhiteSpace, '=');
+
+        // Decide how to parse the line based on the first substring
+        // Parse as a world color configuration
+        if(splitStr[0] == "world-color"){
+            // Split the value string at any commas 
+            std::string* splitVal = splitString(splitStr[1], ',');
+
+            // Convert the components to doubles
+            double rComp = atof(splitVal[0].c_str());
+            double gComp = atof(splitVal[1].c_str());
+            double bComp = atof(splitVal[2].c_str());
+
+            // Use the compoents to set the world color config
+            config.worldColor = Color(rComp, gComp, bComp);
+
+            delete[] splitVal;
+        }
+        // Parse as a camera-postion config
+        else if(splitStr[0] == "camera-position"){
+            // Split the value string at any commas 
+            std::string* splitVal = splitString(splitStr[1], ',');
+
+            // Convert the components to doubles
+            double xComp = atof(splitVal[0].c_str());
+            double yComp = atof(splitVal[1].c_str());
+            double zComp = atof(splitVal[2].c_str());
+
+            // Use the compoents to set the world color config
+            config.cameraPos = Vector3(xComp, yComp, zComp);
+
+            delete[] splitVal;
+        }
+        // Parse as a light-postion config
+        else if(splitStr[0] == "light-position"){
+            // Split the value string at any commas 
+            std::string* splitVal = splitString(splitStr[1], ',');
+
+            // Convert the components to doubles
+            double xComp = atof(splitVal[0].c_str());
+            double yComp = atof(splitVal[1].c_str());
+            double zComp = atof(splitVal[2].c_str());
+
+            // Use the compoents to set the world color config
+            config.lightPos = Vector3(xComp, yComp, zComp);
+
+            delete[] splitVal;
+        }
+        // Parse as an image-length config
+        else if(splitStr[0] == "image-length"){
+            // Parse the value as an int and set the imageLength config
+            config.imageLength = atoi(splitStr[1].c_str());
+        }
+        // Parse as an image-width config
+        else if(splitStr[0] == "image-width"){
+            // Parse the value as an int and set the imageLength config
+            config.imageWidth = atoi(splitStr[1].c_str());
+        }
+        // Parse as a max-reflect-depth config
+        else if(splitStr[0] == "max-reflect-depth"){
+            // Parse the value as an int and set the maximumReflectionDeph config
+           config.maximumReflectionDeph = atoi(splitStr[1].c_str());
+        }
+                // Parse as a shadow-scale-base config
+        else if(splitStr[0] == "shadow-scale-base"){
+            // Parse the value as a double and set the shadowScaleBase config
+           config.shadowScaleBase = atof(splitStr[1].c_str());
+        }
+
+        // Free the memory from the list of strings
+        delete[] splitStr;
+    }
+
+    // Return the Configurator
+    return config;
+
+}
