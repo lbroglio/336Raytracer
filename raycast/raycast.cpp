@@ -158,7 +158,7 @@ int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 d
 
     // Get a normal vector for the intersected face
     Face f = faces->at(intersectedFaceIndex);
-    Vector3 aVector = f.v2.v -f. v1.v;
+    Vector3 aVector = f.v2.v - f.v1.v;
     Vector3 bVector = f.v3.v - f.v1.v;
     Vector3 faceNormal = aVector * bVector;
 
@@ -169,11 +169,11 @@ int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 d
     faceNormal.x = faceNormal.z / magnitude;
 
     // Use the normal to find the reflection 
-    Vector3 reflectionRay = direction - ((2 * direction.dot(faceNormal)) * faceNormal);
+    Vector3 reflectionRay = direction - (2 * (direction.dot(faceNormal)) * faceNormal);
 
     // Cast the relfection ray 
     Vector3 riPoint;
-    int rIndex = castRay(intersectionPoint, reflectionRay, faces, &riPoint);
+    int rIndex = castRay(intersectionPoint + Vector3(0.1,0.1,0.1), reflectionRay, faces, &riPoint);
 
     // If no face was intersected
     if(rIndex == -1){
@@ -181,8 +181,10 @@ int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 d
         return 0;
     }
 
+    // Apply yaw 
+
     // Filter the reflection if the new intersection point is too close to the origin point of the reflection ray
-    if(compsWithinDist(intersectionPoint, riPoint, 0.0001)){
+    if(vecsWithinDist(intersectionPoint, riPoint, 0.0001)){
         // Recast the reflection with the origin face removed
         std::vector<Face> facesCopy = *faces;
         facesCopy.erase(facesCopy.begin() + rIndex);
@@ -209,30 +211,36 @@ int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 d
 
     // If a diffuse / non reflective material was hit
 
+    
     // Cast a shadow ray to ensure that the hit material has light
     Vector3 siPoint;
     // Cast a shadow ray
     int shadowFaceIndex = castRay(riPoint, lightPos, faces, &siPoint);
 
     // Filter valid intersection points based on proximity to starting position
-    if(compsWithinDist(riPoint, siPoint, 0.0001) && shadowFaceIndex != -1){
+    if(vecsWithinDist(riPoint, siPoint, 0.0001) && shadowFaceIndex != -1){
         // If the points are ruled to be too close try again without the face included
             std::vector<Face> facesCopy = *faces;
             facesCopy.erase(facesCopy.begin() + shadowFaceIndex);
 
             shadowFaceIndex = castRay(riPoint, lightPos, &facesCopy, &siPoint);
     }
+    
 
     // If the shadow ray returns something other than negative 1 this means there is no path from the reflected object to light
     // so 0 is returned to indicate that no reflected color was found
     if(shadowFaceIndex != -1){
         return 0;
     }
+    
 
     // If the reflected object is lit 
     
-    // Get its color
-    Color reflectedColor = faces->at(rIndex).mat.diffuseComponent;
+    // Get its color scaled by the distance from the orignal point
+    double dist = sqrt(std::pow(intersectionPoint.x - riPoint.x, 2) + std::pow(intersectionPoint.y - riPoint.y, 2) + std::pow(intersectionPoint.z - riPoint.z, 2));
+    dist *= 0.4;
+    Color targetColor =  faces->at(rIndex).mat.diffuseComponent;;
+    Color reflectedColor = Color(targetColor.r / dist, targetColor.g / dist, targetColor.b / dist);
 
     // Set the color and return 1 to indicate success
     *toSet = reflectedColor;
@@ -291,7 +299,7 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
                 int shadowFaceIndex = castRay(iPoint, lightPos, faces, &siPoint);
 
                 // Filter valid intersection points based on proximity to starting position
-                if(compsWithinDist(iPoint, siPoint, 0.0001) && shadowFaceIndex != -1){
+                if(vecsWithinDist(iPoint, siPoint, 0.0001) && shadowFaceIndex != -1){
                     // If the points are ruled to be too close try again without the face included
                     std::vector<Face> facesCopy = *faces;
                     facesCopy.erase(facesCopy.begin() + shadowFaceIndex);
@@ -321,7 +329,7 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
                     // Check if the reflection was succesful
                     if(hasReflection == 1){
                         // Set the color to the one being reflected
-                        pixelColor = reflectedColor;
+                        pixelColor = Color((reflectedColor.r * 0.75) + pixelColor.r * 0.25, (reflectedColor.g * 0.75) + pixelColor.g * 0.25, (reflectedColor.b * 0.75) + pixelColor.b * 0.25);
                         shadowScalar = 1;
                     }
                 }
@@ -329,7 +337,7 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
                 // Set the the color of this pixel to be the diffuse component of the material scaled by
                 // the distance of the camera to the intersection point
                 double dist = sqrt(std::pow(cameraPos.x - iPoint.x, 2) + std::pow(cameraPos.y - iPoint.y, 2) + std::pow(cameraPos.z - iPoint.z, 2));
-                double distScalar = std::pow(config->shadowScaleBase,  dist);
+                double distScalar = (dist) * config->shadowScaleMult;
                 Color scaledColor(std::max((pixelColor.r * shadowScalar) - distScalar, 0.0), std::max((pixelColor.g * shadowScalar) - distScalar, 0.0), std::max((pixelColor.b * shadowScalar) - distScalar, 0.0));
                 pixels[row][col] = scaledColor;
             }

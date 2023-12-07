@@ -148,7 +148,7 @@ class Vector3{
      * @param dist The distance to check if the the Vectors components are within from each other
      * @return True if all components are within the given distance of each other; false if they are not.
      */
-    friend int compsWithinDist(Vector3 v1, Vector3 v2, double dist);
+    friend int vecsWithinDist(Vector3 v1, Vector3 v2, double dist);
 
 };
 

@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
 
     // Render the image
     Color** pixels;
-    pixels = raytrace(config.cameraPos, 0, 0, config.lightPos, 8, config.imageLength, config.imageWidth, Color(135, 206, 235), &faces, &config);
+    pixels = raytrace(config.cameraPos, 0, 0, config.lightPos, 8, config.imageLength, config.imageWidth, config.worldColor, &faces, &config);
 
     // Output the pixels as an image file
     

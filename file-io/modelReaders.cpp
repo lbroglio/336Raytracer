@@ -451,9 +451,9 @@ std::map<std::string, Material> MtlReader::readInFile(){
            config.maximumReflectionDeph = atoi(splitStr[1].c_str());
         }
                 // Parse as a shadow-scale-base config
-        else if(splitStr[0] == "shadow-scale-base"){
+        else if(splitStr[0] == "shadow-scale-mult"){
             // Parse the value as a double and set the shadowScaleBase config
-           config.shadowScaleBase = atof(splitStr[1].c_str());
+           config.shadowScaleMult = atof(splitStr[1].c_str());
         }
 
         // Free the memory from the list of strings

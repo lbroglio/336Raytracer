@@ -1,4 +1,5 @@
 #include<iostream>
+#include<cmath>
 
 #include "vectors.hpp"
 
@@ -95,12 +96,9 @@ int Vector3::operator!=(const Vector3& v){
 }
 
 
-int compsWithinDist(Vector3 v1, Vector3 v2, double dist){
-    // Get the difference between the values of each component
-    int  xDiff = std::abs(v1.x - v2.x);
-    int  yDiff = std::abs(v1.y - v2.y);
-    int  zDiff = std::abs(v1.z - v2.z);
+int vecsWithinDist(Vector3 v1, Vector3 v2, double dist){
+    double vecDist = sqrt(std::pow(v1.x - v2.x, 2) + std::pow(v1.y - v2.y, 2) + std::pow(v1.z - v2.z, 2));
 
-    // Check that all differences are less than dist
-    return ((xDiff <= dist) && (yDiff <= dist) && (zDiff <= dist));
+    // Check that the two vectors are more than dist apart
+    return vecDist <= dist;
 }
