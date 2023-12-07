@@ -147,7 +147,7 @@ int castRay(Vertex startPos, Vector3 direction, std::vector<Face>* faces, Vertex
  * @param toSet Pointer to set thbe output color to 
  * @return 1 if a reflected color has been successfully found. 0 if not
  */
-int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 direction, std::vector<Face>* faces, int currentDepth, int maxDepth, Vertex lightPos, Color* toSet){
+int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 direction, std::vector<Face>* faces, int currentDepth, int maxDepth, double distScalar, Vertex lightPos, Color* toSet){
     // If this ray's reflection depth is at the maximum
     if(currentDepth == maxDepth){
         // Return 0 to indicate that no reflected color was found
@@ -206,7 +206,7 @@ int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 d
 
     // If another reflective material is hit recursively call
     if(intersectedMat.illumMode == 3 || intersectedMat.illumMode == 5){
-        return castReflection(riPoint, rIndex, reflectionRay, faces, currentDepth+1, maxDepth, lightPos, toSet);
+        return castReflection(riPoint, rIndex, reflectionRay, faces, currentDepth+1, maxDepth, distScalar, lightPos, toSet);
     }
 
     // If a diffuse / non reflective material was hit
@@ -238,7 +238,10 @@ int castReflection(Vertex intersectionPoint, int intersectedFaceIndex, Vector3 d
     
     // Get its color scaled by the distance from the orignal point
     double dist = sqrt(std::pow(intersectionPoint.x - riPoint.x, 2) + std::pow(intersectionPoint.y - riPoint.y, 2) + std::pow(intersectionPoint.z - riPoint.z, 2));
-    dist *= 0.4;
+    dist *= distScalar;
+    if(dist < 1){
+        dist = 1;
+    }
     Color targetColor =  faces->at(rIndex).mat.diffuseComponent;;
     Color reflectedColor = Color(targetColor.r / dist, targetColor.g / dist, targetColor.b / dist);
 
@@ -324,7 +327,7 @@ Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightP
                 if(mat.illumMode == 3 || mat.illumMode == 5){
                     // Cast a reflection ray
                     Color reflectedColor;
-                    int hasReflection = castReflection(iPoint, faceIndex, direction, faces, 0, config->maximumReflectionDeph, lightPos, &reflectedColor);
+                    int hasReflection = castReflection(iPoint, faceIndex, direction, faces, 0, config->maximumReflectionDeph, config->reflectDistScalar, lightPos, &reflectedColor);
 
                     // Check if the reflection was succesful
                     if(hasReflection == 1){

@@ -450,10 +450,15 @@ std::map<std::string, Material> MtlReader::readInFile(){
             // Parse the value as an int and set the maximumReflectionDeph config
            config.maximumReflectionDeph = atoi(splitStr[1].c_str());
         }
-                // Parse as a shadow-scale-base config
+        // Parse as a shadow-scale-base config
         else if(splitStr[0] == "shadow-scale-mult"){
             // Parse the value as a double and set the shadowScaleBase config
            config.shadowScaleMult = atof(splitStr[1].c_str());
+        }
+        // Parse as a shadow-scale-base config
+        else if(splitStr[0] == "reflection-darken-scalar"){
+            // Parse the value as a double and set the shadowScaleBase config
+           config.reflectDistScalar = atof(splitStr[1].c_str());
         }
 
         // Free the memory from the list of strings

@@ -15,6 +15,7 @@ struct Configurator{
     int imageWidth = 1080;
     int maximumReflectionDeph = 5;
     double shadowScaleMult = 1.3;
+    double reflectDistScalar = 0.4;
 };
 
 #endif
