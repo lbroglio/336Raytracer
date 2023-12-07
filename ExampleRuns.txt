@@ -1,5 +1,0 @@
-./bin/raytrace336 test-models/FloatingCube.obj test-models/FloatingCube.mtl test-models/RecommendedConfigs/FloatingCube.config
-
-./bin/raytrace336 test-models/CubeReflection.obj test-models/CubeReflection.mtl test-models/RecommendedConfigs/CubeReflection.config
-
-./bin/raytrace336 test-models/ReflectionNoView.obj test-models/ReflectionNoView.mtl test-models/RecommendedConfigs/ReflectionNoView.config
