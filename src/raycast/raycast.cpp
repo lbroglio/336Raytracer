@@ -3,7 +3,7 @@
 #include<fstream>
 #include<cmath>
 
-#include "../configuration/configurator.hpp"
+#include "../config/configurator.hpp"
 #include "../world/worldObjects.hpp"
 #include "../world/vectors.hpp"
 

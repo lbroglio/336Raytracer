@@ -1,26 +1,35 @@
-raytrace336: raytrace336.o vectors.o worldObjects.o modelReaders.o raycast.o imageOut.o configuration/configurator.hpp bin
-	g++ -Wall -Werror -ggdb bin/raytrace336.o bin/worldObjects.o bin/modelReaders.o bin/vectors.o bin/raycast.o bin/imageOut.o -o bin/raytrace336
+CC= g++
+APPNAME= raytrace336
+SOURCES= file-io/imageOut.cpp \
+		 file-io/modelReaders.cpp \
+		 raycast/raycast.cpp\
+		 world/vectors.cpp \
+		 world/worldObjects.cpp \
+		 raytrace336.cpp
+BINDIR= bin
+OBJECTS = $(SOURCES:%.cpp=$(BINDIR)/%.o)
+TARGET= $(BINDIR)/$(APPNAME)
+CCFLAGS= -Wall -Werror
 
-raytrace336.o: raytrace336.cpp bin configuration/configurator.hpp
-	g++ -Wall -Werror -ggdb -c raytrace336.cpp -o bin/raytrace336.o
+.PHONY: clean all
 
-vectors.o: world/vectors.cpp world/vectors.hpp bin
-	g++ -Wall -Werror -ggdb -c  world/vectors.cpp -o bin/vectors.o
+all: $(TARGET)
 
-worldObjects.o: world/worldObjects.cpp world/worldObjects.hpp bin
-	g++ -Wall -Werror -ggdb -c  world/worldObjects.cpp -o bin/worldObjects.o
+$(TARGET): bin $(OBJECTS) 
+	$(CC) $(CCFLAGS) $(OBJECTS) -o $(TARGET)
 
-modelReaders.o: file-io/modelReaders.cpp file-io/modelReaders.hpp configuration/configurator.hpp bin
-	g++ -Wall -Werror -ggdb -c  file-io/modelReaders.cpp -o bin/modelReaders.o
+bin/%.o: src/%.cpp
+	$(CC) $(CCFLAGS) -c $< -o $@
 
-raycast.o: raycast/raycast.hpp raycast/raycast.cpp configuration/configurator.hpp bin
-	g++ -Wall -Werror -ggdb -c  raycast/raycast.cpp -o bin/raycast.o
+# Create a bin directory which mirrors the source directory
+bin: 
+	mkdir bin 
+	for dir in src/*; do \
+		if [ -d $${dir} ]; then \
+			mkdir bin/$${dir##*/}; \
+		fi \
+	done
 
-imageOut.o: file-io/imageOut.cpp file-io/imageOut.hpp bin
-	g++ -Wall -Werror -ggdb -c  file-io/imageOut.cpp -o bin/imageOut.o
-
-bin:
-	if  ! [[ -d "./bin" ]]; then mkdir bin; fi
-
+	
 clean:
-	rm bin/*
+	rm -rf bin

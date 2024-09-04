@@ -7,7 +7,7 @@
 #include<map>
 
 #include "../world/worldObjects.hpp"
-#include "../configuration/configurator.hpp"
+#include "../config/configurator.hpp"
 
 
 /**

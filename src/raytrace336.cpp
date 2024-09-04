@@ -7,7 +7,7 @@
 #include "world/worldObjects.hpp"
 #include "world/vectors.hpp"
 #include "raycast/raycast.hpp"
-#include "configuration/configurator.hpp"
+#include "config/configurator.hpp"
 
 
 int main(int argc, char* argv[]){

@@ -2,7 +2,7 @@
 
 #include "../world/worldObjects.hpp"
 #include "../world/vectors.hpp"
-#include "../configuration/configurator.hpp"
+#include "../config/configurator.hpp"
 
 /**
  * @brief Peforms the raytrace operation on the model. Casts all the primary, shadow, and reflection rays.
