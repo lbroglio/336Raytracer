@@ -29,13 +29,6 @@ int main(int argc, char* argv[]){
     ObjReader oReader(argv[1]);
     std::vector<Face> faces = oReader.readInFile(mats);
 
-    /*
-    std::ofstream logFile("log.txt");
-    for(size_t i =0; i < faces.size(); i++){
-        logFile << faces[i] << "-----\n";
-    }
-    logFile.close();
-    */
 
     // Render the image
     Color** pixels;
