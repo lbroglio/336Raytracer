@@ -1,3 +1,7 @@
+#ifndef R336_RAYCAST
+#define R336_RAYCAST
+
+
 #include<vector>
 
 #include "../world/worldObjects.hpp"
@@ -25,3 +29,5 @@
  * @return An array of Color objects represeting the rendered image
  */
 Color** raytrace(Vertex cameraPos, int cameraPitch, int cameraYaw, Vertex lightPos, double viewLength, int imgLength, int imgWidth,Color worldColor, std::vector<Face>* faces, Configurator* config);
+
+#endif
