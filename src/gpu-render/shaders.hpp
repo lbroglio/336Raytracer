@@ -1,14 +1,14 @@
-const char* V_SHADER_SOURCE = R"V0G0N(#version 310 es
+const char* V_SHADER_SOURCE = R"V0G0N(#version 300 es
 precision mediump float;
 
 uniform mat4 cameraTranslate;
 uniform mat4 cameraRot;
 uniform mat4 scaleTransform;
 
-attribute vec4 a_Position;
-attribute vec4 a_Color;
+in vec4 a_Position;
+in vec4 a_Color;
 
-varying vec4 color;
+out vec4 color;
 
 
 void main()
@@ -19,18 +19,19 @@ void main()
   color = a_Color;
 }
 
-})V0G0N";
+)V0G0N";
 
-const char* F_SHADER_SOURCE = R"V0G0N(#version 310 es
+const char* F_SHADER_SOURCE = R"V0G0N(#version 300 es
 precision mediump float;
 
-varying vec4 color;
+in vec4 color;
+out vec4 fragColor;
 
 void main() {
 
-  gl_FragColor = color;
+  fragColor = color;
 }
 
-})V0G0N";
+)V0G0N";
 
 

@@ -7,6 +7,10 @@
 #include"shaders.hpp"
 #include"../file-io/modelReaders.hpp"
 
+#define A_POSITION_LOC 0
+#define A_COLOR_LOC 1
+
+
 void render(unsigned int shaderProg, int numPoints, GLuint* bufferIndices, float* cameraTransform);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -70,6 +74,7 @@ bool renderWithGPU(std::vector<Face>* faces, Color worldColor, Vertex cameraPos,
         return false;
     }
 
+    glfwMakeContextCurrent(window);
     // Initialize GLADD
     if (!gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress))
     {
@@ -110,7 +115,7 @@ bool renderWithGPU(std::vector<Face>* faces, Color worldColor, Vertex cameraPos,
     glGetShaderiv(fShader, GL_COMPILE_STATUS, &success);
     if(!success)
     {
-        glGetShaderInfoLog(vShader, 512, NULL, infoLog);
+        glGetShaderInfoLog(fShader, 512, NULL, infoLog);
         std::cout << "Error: Fragment shader compilation failed. Root Cause: " << infoLog << std::endl;
     }
 
@@ -119,6 +124,9 @@ bool renderWithGPU(std::vector<Face>* faces, Color worldColor, Vertex cameraPos,
     prog = glCreateProgram();
     glAttachShader(prog, vShader);
     glAttachShader(prog, fShader);
+    // Bind attribute locations
+    glBindAttribLocation(prog, A_POSITION_LOC, "a_Position");
+    glBindAttribLocation(prog, A_COLOR_LOC, "a_Color");
     glLinkProgram(prog);
 
     // Delete the programs as they are no longer needed
@@ -159,27 +167,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 
 
 void render(unsigned int shaderProg, int numPoints, GLuint* bufferIndices, float* cameraTransform){
-
+    std::cout << "reached" << std::endl;
     // Use the program 
     glUseProgram(shaderProg); 
 
-    // Find position attribute
-    int positionLoc = glGetAttribLocation(shaderProg, "a_Position");
-    if (positionLoc < 0) {
-        std::cout << "Error: Failed to find a_Position attribute location" << std::endl;
-        return;
-    }
-
-    // Find color attribute
-    int colorLoc = glGetAttribLocation(shaderProg, "a_Position");
-    if (colorLoc < 0) {
-        std::cout << "Error: Failed to find a_Color attribute location" << std::endl;
-        return;
-    }
-
-    // "enable" the attributes
-    glEnableVertexAttribArray(positionLoc);
-    glEnableVertexAttribArray(colorLoc);
+    // Enable the attributes
+    glEnableVertexAttribArray(A_POSITION_LOC);
+    glEnableVertexAttribArray(A_COLOR_LOC);
 
 
     // Setup stride and offet
@@ -188,8 +182,8 @@ void render(unsigned int shaderProg, int numPoints, GLuint* bufferIndices, float
 
     // Buffer data into the position and color attributes
     glBindBuffer(GL_ARRAY_BUFFER, bufferIndices[0]);
-    glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, vertexStride, 0);
-    glVertexAttribPointer(colorLoc, 4, GL_FLOAT, GL_FALSE, vertexStride,  (GLvoid*) vertexColorOffset);
+    glVertexAttribPointer(A_POSITION_LOC, 3, GL_FLOAT, GL_FALSE, vertexStride, 0);
+    glVertexAttribPointer(A_COLOR_LOC, 4, GL_FLOAT, GL_FALSE, vertexStride,  (GLvoid*) vertexColorOffset);
 
     // Unbind the buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -198,8 +192,8 @@ void render(unsigned int shaderProg, int numPoints, GLuint* bufferIndices, float
     glDrawArrays(GL_TRIANGLES, 0, numPoints);
 
     // Unbind the program and disable attributes
-    glDisableVertexAttribArray(positionLoc);
-    glDisableVertexAttribArray(colorLoc);
+    glDisableVertexAttribArray(A_POSITION_LOC);
+    glDisableVertexAttribArray(A_COLOR_LOC);
     glUseProgram(0);
 }
 

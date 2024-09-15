@@ -7,3 +7,5 @@ bin
 # Ouput
 renderedImage.ppm
 renderedImage.png
+gpuRenderedImage.png
+gpuRenderedImage.ppm
