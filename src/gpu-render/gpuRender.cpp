@@ -1,11 +1,14 @@
-#include<glad/glad.h>
+#include"../../include/glad/glad.h"
 #include<GLFW/glfw3.h>
 
+
 #include"gpuRender.hpp"
-#include"vectors.hpp"
+#include"../world/vectors.hpp"
 #include"shaders.hpp"
+#include"../file-io/modelReaders.hpp"
 
-
+void render(unsigned int shaderProg, int numPoints, GLuint* bufferIndices, float* cameraTransform);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 bool renderWithGPU(std::vector<Face>* faces, Color worldColor, Vertex cameraPos, int cameraPitch, int cameraYaw){
     // Create array to hold vertices and color data
@@ -114,19 +117,34 @@ bool renderWithGPU(std::vector<Face>* faces, Color worldColor, Vertex cameraPos,
     // Create shader program
     unsigned int prog;
     prog = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+    glAttachShader(prog, vShader);
+    glAttachShader(prog, fShader);
+    glLinkProgram(prog);
 
+    // Delete the programs as they are no longer needed
+    glDeleteShader(vShader);
+    glDeleteShader(fShader); 
+
+    // Create buffers
+    GLuint bufferIndices[1];
+    glGenBuffers(1, bufferIndices);
+
+    // Load the buffer
+    glBindBuffer(GL_ARRAY_BUFFER, bufferIndices[0]);
+    GLsizeiptr bufferSize = sizeof(float) * faces->size() * 21;
+    glBufferData(GL_ARRAY_BUFFER, bufferSize, vertArray, GL_STATIC_DRAW);
 
 
     while (!glfwWindowShouldClose(window)) {
         // Clear the frame
         glClear(GL_COLOR_BUFFER_BIT);
 
-
-
+        // Render the frame
+        render(prog, faces->size() * 3, bufferIndices, 0);
     }
+
+    // Cleanup buffers
+    glDeleteBuffers(1, bufferIndices);
 
     // Cleanup window on close
     glfwTerminate();
@@ -140,6 +158,69 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 }
 
 
-void render(unsigned int shaderProg, float* vertArray, float* cameraTransform){
+void render(unsigned int shaderProg, int numPoints, GLuint* bufferIndices, float* cameraTransform){
 
+    // Use the program 
+    glUseProgram(shaderProg); 
+
+    // Find position attribute
+    int positionLoc = glGetAttribLocation(shaderProg, "a_Position");
+    if (positionLoc < 0) {
+        std::cout << "Error: Failed to find a_Position attribute location" << std::endl;
+        return;
+    }
+
+    // Find color attribute
+    int colorLoc = glGetAttribLocation(shaderProg, "a_Position");
+    if (colorLoc < 0) {
+        std::cout << "Error: Failed to find a_Color attribute location" << std::endl;
+        return;
+    }
+
+    // "enable" the attributes
+    glEnableVertexAttribArray(positionLoc);
+    glEnableVertexAttribArray(colorLoc);
+
+
+    // Setup stride and offet
+    GLintptr vertexColorOffset = 3 * sizeof(float);
+    int vertexStride = 4 * sizeof(float);
+
+    // Buffer data into the position and color attributes
+    glBindBuffer(GL_ARRAY_BUFFER, bufferIndices[0]);
+    glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, vertexStride, 0);
+    glVertexAttribPointer(colorLoc, 4, GL_FLOAT, GL_FALSE, vertexStride,  (GLvoid*) vertexColorOffset);
+
+    // Unbind the buffer
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    // Draw the image
+    glDrawArrays(GL_TRIANGLES, 0, numPoints);
+
+    // Unbind the program and disable attributes
+    glDisableVertexAttribArray(positionLoc);
+    glDisableVertexAttribArray(colorLoc);
+    glUseProgram(0);
+}
+
+int main(int argc, char* argv[]){
+    // Setup program configurations
+    Configurator config;
+
+    // If a configuration file was given on the command line use it to set program configs
+    if(argc > 3){
+        ConfigReader cReader = ConfigReader(argv[3]);
+
+        config =  cReader.readInFile();
+    }
+
+    // Read in the .mtl file specified by the second argument
+    MtlReader mReader(argv[2]);
+    std::map<std::string, Material> mats = mReader.readInFile();
+
+    // Read in the .obj file specified by the first argument
+    ObjReader oReader(argv[1]);
+    std::vector<Face> faces = oReader.readInFile(mats);
+
+    renderWithGPU(&faces, config.worldColor, config.cameraPos, 0, 0);
 }
