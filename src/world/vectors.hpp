@@ -2,8 +2,6 @@
 #define R336_VECTORS
 
 
-
-
 /**
  * Represents a 3 dimension Vector in the world
 */

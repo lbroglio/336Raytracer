@@ -1,4 +1,4 @@
-CC= g++
+CC= g++ --std=c++17
 APPNAME= raytrace336
 SOURCES= file-io/imageOut.cpp \
 		 file-io/modelReaders.cpp \

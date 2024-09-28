@@ -221,13 +221,18 @@ class Face {
     public:
         /**
          * @brief Construct a new Face object
+         * Default constructor all value set to 0
+         */
+        Face();
+        /**
+         * @brief Construct a new Face object
          * Must be a triangular
          * @param v1 One of the vertices defining this face
          * @param v2 One of the vertices defining this face
          * @param v3 One of the vertices defining this face
          */
         Face(ObjVertex v1, ObjVertex v2, ObjVertex v3);
-            /**
+        /**
          * @brief Construct a new Face object
          * Must be a triangular
          * @param v1 One of the vertices defining this face

@@ -9,6 +9,40 @@
 #include "../config/configurator.hpp"
 
 /**
+ * @brief The results of a ray being cast. \n
+ * Holds whether or not the the Ray was a hit (Intersected with anything) \n 
+ * The point in space where the intersection took place (if at all) \n 
+ * and the face that was intersected with 
+ * 
+ */
+struct RayCast{
+    /**
+     * @brief 
+     * true: This Raycast resulted in an intersection \n
+     * false: This raycast did not result in an intersetion
+     * 
+     */
+    bool hit;
+    /**
+     * @brief The point in space where this raycasts intersection happened. \n 
+     * null if no intersection occured
+     * 
+     */
+    Vector3 iPoint;
+    /**
+     * @brief The face this raycast intersected with \n
+     * null if no intersection occured
+     */
+    Face iFace;
+
+    // Simple consturctor to make a RayCast
+    RayCast(bool hit, Vector3 iPoint, Face iFace): hit(hit), iPoint(iPoint), iFace(iFace){} 
+
+    // Simple consturctor to make a RayCast with default intersection point and face
+    RayCast(bool hit): hit(hit), iPoint(Vertex(0, 0, 0)){}
+};
+
+/**
  * @brief Peforms the raytrace operation on the model. Casts all the primary, shadow, and reflection rays.
  * uses this information to set the pixel colors and returns the rendered image as an allocated array of Color objects
  * which holds the Color of each pixel in the image. 

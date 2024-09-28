@@ -114,3 +114,5 @@ std::ostream& operator<<(std::ostream& o, const Face& f){
 
     return o;
 }
+
+Face::Face(){}
