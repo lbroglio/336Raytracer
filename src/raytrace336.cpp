@@ -55,8 +55,15 @@ int main(int argc, char* argv[]){
     // Call python script to convert output to png
     system("python convertImage.py renderedImage.ppm");
 
-    // Check if the .png file exists
+    // Check if the .png file exists 
     std::ifstream checkFile("renderedImage.png");
+    if(!checkFile.is_open()){
+        // If it doesn't try using the python3 command
+        system("python3 convertImage.py renderedImage.ppm");
+        checkFile = std::ifstream("renderedImage.png");
+    }
+
+    // Check if the .png file exists 
     if (checkFile.is_open()) {
         // If the file exists delete the ppm 
         remove("renderedImage.ppm");
